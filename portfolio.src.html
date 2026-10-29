@@ -390,7 +390,7 @@
 
 <div class="wrap">
   <nav class="nav glass" aria-label="Main">
-    <a class="brand" href="#top" aria-label="Vũ Hoàng Phương, back to top"><img src="assets/img/avatar.webp" alt="" width="44" height="44"><span>Creative</span></a>
+    <a class="brand" href="#top" aria-label="Vũ Hoàng Phương, replay intro"><img src="assets/img/avatar.webp" alt="" width="44" height="44"><span>Creative</span></a>
     <ul>
       <li class="ind" aria-hidden="true"></li>
       <li><a class="l" href="#work">Work</a></li>
@@ -904,30 +904,44 @@
 
 
   /* Intro: plays once per browser session on a plain visit; a project link, Reduce Motion
-     or an earlier visit in this session goes straight to the page. */
-  (function () {
-    var intro = document.getElementById("intro");
-    var seen = false;
-    try { seen = sessionStorage.getItem("vhp-intro") === "1"; sessionStorage.setItem("vhp-intro", "1"); } catch (e) {}
-    var deep = PROJECTS.some(function (q) { return "#" + q.slug === location.hash; });
-    if (still || seen || deep) { intro.remove(); return; }
+     or an earlier visit in this session goes straight to the page. The menu portrait
+     replays it from a fresh copy of the markup. */
+  var introTpl = document.getElementById("intro").outerHTML;
+  var heroAnimated = document.querySelectorAll(".hero .eyebrow, .hero h1 .ln, .hero .label, .summary p, .hero .actions, .hero .facts");
+  function playIntro(intro) {
     document.body.classList.add("intro-on");
     var text = intro.querySelector(".i-text"), words = text.textContent.trim().split(/\s+/);
     text.innerHTML = words.map(function (w, k) {
       return '<span class="w"><span style="--wd:' + (3.35 + k * .045).toFixed(3) + 's">' + w + '</span></span>';
     }).join(" ");
-    var done = false, timer = setTimeout(finish, 6900);
+    var skip = intro.querySelector(".i-skip"), done = false, timer = setTimeout(finish, 6900);
+    function onKey(e) { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") { e.preventDefault(); finish(); } }
     function finish() {
       if (done) return; done = true; clearTimeout(timer);
+      document.removeEventListener("keydown", onKey);
       intro.classList.add("i-out");
       document.body.classList.remove("intro-on");
       setTimeout(function () { intro.remove(); }, 900);
     }
-    document.getElementById("i-skip").addEventListener("click", finish);
-    intro.addEventListener("click", function (e) { if (e.target !== intro.querySelector(".i-skip")) finish(); });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") finish(); }, { once: true });
-    document.getElementById("i-skip").focus({ preventScroll: true });
+    intro.addEventListener("click", finish);
+    document.addEventListener("keydown", onKey);
+    skip.focus({ preventScroll: true });
+  }
+  (function () {
+    var intro = document.getElementById("intro"), seen = false;
+    try { seen = sessionStorage.getItem("vhp-intro") === "1"; sessionStorage.setItem("vhp-intro", "1"); } catch (e) {}
+    var deep = PROJECTS.some(function (q) { return "#" + q.slug === location.hash; });
+    if (still || seen || deep) intro.remove(); else playIntro(intro);
   })();
+  document.querySelector(".brand").addEventListener("click", function (e) {
+    if (still) return;
+    e.preventDefault();
+    if (document.getElementById("intro")) return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+    heroAnimated.forEach(function (el) { el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; });
+    document.body.insertAdjacentHTML("afterbegin", introTpl);
+    playIntro(document.getElementById("intro"));
+  });
 
   document.addEventListener("pointermove", function (e) {
     var g = e.target.closest && e.target.closest(".glass");
