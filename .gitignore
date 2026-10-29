@@ -1,0 +1,13 @@
+# Originals and working files stay local; the site only needs index.html + assets/
+/Images/
+/font/
+*.docx
+*.ai
+.DS_Store
+.claude/
+__pycache__/
+# fonts no longer used by the page (Reddit Sans and Barlow Condensed load from Google Fonts)
+assets/fonts/hg.woff
+assets/fonts/bc500.woff
+assets/fonts/bc600.woff
+CLAUDE.md
