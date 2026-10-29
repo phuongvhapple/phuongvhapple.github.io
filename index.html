@@ -370,18 +370,12 @@
   @media (max-width: 420px) {
     .nav a.l { padding: 8px 6px; font-size: 14px; letter-spacing: .03em; }
   }
+  /* Reduce Motion keeps the intro, reveals and light effects (the owner wants them on every
+     phone) and only stops the scroll-linked drift: background lights and parallax covers. */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .field i { animation: none; translate: none; }
     .hero h1, .hero .facts, .card .art img { translate: none; scale: none; }
-    .rv { opacity: 1; transform: none; filter: none; transition: none; }
-    .card, .card .art, .btn, .art img, .gallery img, .jd { transition: none; }
-    .hero .eyebrow, .hero h1 .ln, .hero .label, .summary p, .hero .actions, .hero .facts, .nav::after, .btn.primary::after, .job.lit::before { animation: none !important; }
-    h2 em::after, .contact::before { transform: none; transition: none; }
-    .rail::after { transform: none; }
-    .rip, .scrim, .scrim .sheet, .gallery button, .lb, .lb img.go { animation: none !important; }
-    .intro { display: none; }
-    .split h2 .w > span, .card.rv .art, .skills li.rv, .nav li.ind { transform: none; clip-path: none; transition: none; }
   }
 </style>
 </head>
@@ -668,7 +662,8 @@
   /* Project view, routed by #<slug> so each project has its own link. */
   var scrim = document.getElementById("scrim"), lb = document.getElementById("lb");
   var current = null, lbIndex = 0, lastFocus = null, closing = 0;
-  var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* set true to switch every scripted effect off; Reduce Motion is handled in CSS instead */
+  var still = false;
 
   function openProject(p) {
     if (!current) lastFocus = document.activeElement;
