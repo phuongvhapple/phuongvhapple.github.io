@@ -41,6 +41,8 @@
 
   /* sub-title style: Barlow Condensed, spaced capitals */
   .sub { font-family: var(--sub); font-weight: 700; text-transform: uppercase; letter-spacing: .16em; }
+  /* muted, informational labels use the Medium weight; yellow labels and controls stay Bold */
+  .sec-note.sub, .label.sub, .facts dt.sub { font-weight: 500; }
 
   .field { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .field i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .75; will-change: transform; }
@@ -119,7 +121,7 @@
   .card.rv.in { transition: opacity .8s ease, transform .25s; }
   .art { position: relative; aspect-ratio: 4 / 3; border-radius: 20px; overflow: hidden; background: radial-gradient(120% 90% at 18% 12%, var(--a), transparent 62%), radial-gradient(110% 90% at 88% 92%, var(--b), transparent 60%), linear-gradient(160deg, #0a0a2e, #05051a); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
   .art b { position: absolute; left: 16px; bottom: 8px; font-family: var(--headline); font-weight: 600; font-size: clamp(54px, 9vw, 78px); line-height: 1; letter-spacing: -.02em; color: rgba(255,255,255,.24); mix-blend-mode: plus-lighter; }
-  .art span { position: absolute; right: 12px; top: 12px; font-family: var(--sub); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,.35); color: var(--ink-dim); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.14); }
+  .art span { position: absolute; right: 12px; top: 12px; font-family: var(--sub); font-weight: 500; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,.35); color: var(--ink-dim); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.14); }
   .card .meta { padding: 18px 10px 0; display: grid; gap: 4px; }
   .card .tag { font-size: 16px; color: var(--yellow); }
   .card h3 { font-size: 25px; line-height: 1.08; letter-spacing: -.01em; }
@@ -130,7 +132,7 @@
   .job { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 8px 28px; padding: 22px 26px; border-radius: 24px; }
   .job time { font-family: var(--sub); font-weight: 700; font-size: 17px; letter-spacing: .1em; text-transform: uppercase; color: var(--yellow); padding-top: 4px; }
   .job h3 { font-size: 22px; line-height: 1.15; }
-  .job .at { font-family: var(--sub); font-weight: 700; font-size: 17px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); margin: 4px 0 10px; }
+  .job .at { font-family: var(--sub); font-weight: 500; font-size: 17px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); margin: 4px 0 10px; }
   .job p { margin: 0; color: var(--ink-dim); font-size: 16px; max-width: 68ch; }
 
   /* about */
@@ -152,11 +154,11 @@
   .rows { display: grid; gap: 12px; }
   .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 14px 20px; border-radius: 18px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); }
   .row div { min-width: 0; }
-  .row small { display: block; font-family: var(--sub); font-weight: 700; font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+  .row small { display: block; font-family: var(--sub); font-weight: 500; font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
   .row code { font-family: var(--body); font-size: 18px; overflow-wrap: anywhere; user-select: all; }
   .row button { flex: none; font-family: var(--sub); font-weight: 700; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); background: rgba(255,255,255,.12); border: 1px solid var(--glass-edge); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
   .row button:hover { background: rgba(255,255,255,.2); }
-  footer { padding: 40px 0 0; font-family: var(--sub); font-weight: 700; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+  footer { padding: 40px 0 0; font-family: var(--sub); font-weight: 500; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
   .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease, transform .6s ease; }
   /* grid covers are taller than their frame and slide inside it as the card scrolls */
@@ -181,7 +183,7 @@
   .sheet .links a { font-size: 15px; padding: 9px 20px; }
   .gal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 40px 14px 16px; }
   .gal-head h4 { margin: 0; font-family: var(--sub); font-weight: 700; font-size: 22px; letter-spacing: .16em; text-transform: uppercase; color: var(--yellow); }
-  .gal-head span { font-family: var(--sub); font-weight: 700; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+  .gal-head span { font-family: var(--sub); font-weight: 500; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
   .gallery { columns: 3 240px; column-gap: 12px; padding: 0 14px; }
   .gallery button { display: block; width: 100%; margin: 0 0 12px; padding: 0; border: 0; border-radius: 16px; overflow: hidden; cursor: zoom-in; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); break-inside: avoid; }
   .gallery img { display: block; width: 100%; height: auto; max-height: 900px; object-fit: cover; object-position: top; transition: transform .4s ease, opacity .4s; }
@@ -196,7 +198,7 @@
   .lb img { max-width: 100%; max-height: calc(100vh - 140px); object-fit: contain; border-radius: 10px; box-shadow: 0 30px 80px -20px #000; }
   .lb img.tall { max-height: none; }
   .lb .bar { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
-  .lb .bar span { font-family: var(--sub); font-weight: 700; font-size: 16px; letter-spacing: .14em; color: var(--ink-dim); min-width: 80px; text-align: center; }
+  .lb .bar span { font-family: var(--sub); font-weight: 500; font-size: 16px; letter-spacing: .14em; color: var(--ink-dim); min-width: 80px; text-align: center; }
   .lb .btn { width: 48px; height: 48px; padding: 0; justify-content: center; font-size: 22px; letter-spacing: 0; }
   .lb .lb-x { position: fixed; top: max(14px, env(safe-area-inset-top, 0px)); right: 16px; }
 

@@ -35,7 +35,7 @@ HEAD = """<!doctype html>
 """
 
 
-GOOGLE_FONTS = "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Reddit+Sans:wght@400;500;600&display=swap"
+GOOGLE_FONTS = "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Reddit+Sans:wght@400;500;600&display=swap"
 
 
 def artifact(out):
