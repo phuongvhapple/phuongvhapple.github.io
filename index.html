@@ -82,7 +82,6 @@
   /* light passing across text (background-clip) or across a surface (::after band) */
   @keyframes shine { 0% { background-position: 100% 0; } 22%, 100% { background-position: 0 0; } }
   @keyframes sheen { 0% { transform: translateX(-130%) skewX(-18deg); } 18%, 100% { transform: translateX(330%) skewX(-18deg); } }
-  @keyframes sweep { from { transform: translateX(-130%) skewX(-18deg); } to { transform: translateX(330%) skewX(-18deg); } }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(253,196,0,.55), 0 0 22px rgba(253,196,0,.8); } 100% { box-shadow: 0 0 0 16px rgba(253,196,0,0), 0 0 22px rgba(253,196,0,.8); } }
 
   .wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; }
@@ -157,10 +156,6 @@
   .card .art { transition: transform .6s var(--ease), box-shadow .6s var(--ease); }
   .card:hover .art { transform: translateY(-6px); box-shadow: 0 34px 60px -28px var(--glow, rgba(229,48,127,.6)), inset 0 0 0 1px rgba(255,255,255,.16); }
   .card:active .art { transform: scale(.975); transition-duration: .2s; }
-  /* glint: a light band crosses the cover when it comes into view (and on hover) */
-  .card .art::after { content: ""; position: absolute; top: -10%; bottom: -10%; left: 0; width: 38%; z-index: 2; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(255,255,255,.34) 45%, rgba(255,226,150,.22) 55%, transparent); mix-blend-mode: screen; transform: translateX(-130%) skewX(-18deg); }
-  .card.lit .art::after { animation: sweep 1.5s var(--ease) var(--gd, .15s) both; }
-  .card:hover .art::after { animation: sweep 1.1s var(--ease) both; }
   .art { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; background: radial-gradient(120% 90% at 18% 12%, var(--a), transparent 62%), radial-gradient(110% 90% at 88% 92%, var(--b), transparent 60%), linear-gradient(160deg, #0a0a2e, #05051a); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
   .art b { position: absolute; left: 16px; bottom: 8px; font-family: var(--headline); font-weight: 600; font-size: clamp(54px, 9vw, 78px); line-height: 1; letter-spacing: -.02em; color: rgba(255,255,255,.24); mix-blend-mode: plus-lighter; }
   .art span { position: absolute; right: 12px; top: 12px; font-family: var(--sub); font-weight: 500; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,.35); color: var(--ink-dim); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.14); }
@@ -228,7 +223,7 @@
 
   .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease, transform .6s ease; }
   /* grid covers are taller than their frame and slide inside it as the card scrolls */
-  .card .art img { inset: -9% 0; height: 118%; translate: 0 calc(var(--py, 0) * 7%); scale: var(--ps, 1); }
+  .card .art img { inset: -9% 0; height: 118%; translate: 0 calc(var(--py, 0) * 7%); }
   .art img.on { opacity: 1; }
   .card:hover .art img { transform: scale(1.04); }
   .art.has-img b { opacity: 0; transition: opacity .4s; }
@@ -291,10 +286,10 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .field i { animation: none; translate: none; }
-    .hero h1, .hero .facts, .card .art img { translate: none; scale: none; }
+    .hero h1, .hero .facts, .card .art img { translate: none; }
     .rv { opacity: 1; transform: none; filter: none; transition: none; }
     .card, .card .art, .btn, .art img, .gallery img, .jd { transition: none; }
-    .hero .eyebrow, .hero h1 .ln, .hero .label, .summary p, .hero .actions, .hero .facts, .nav::after, .btn.primary::after, .card .art::after, .job.lit::before { animation: none !important; }
+    .hero .eyebrow, .hero h1 .ln, .hero .label, .summary p, .hero .actions, .hero .facts, .nav::after, .btn.primary::after, .job.lit::before { animation: none !important; }
     h2 em::after, .contact::before { transform: none; transition: none; }
     .rail::after { transform: none; }
   }
@@ -706,7 +701,6 @@
       if (r.bottom < -40 || r.top > vh + 40) return;
       var t = Math.max(-1, Math.min(1, ((r.top + lag + r.height / 2) / vh - .5) * -2));
       a.style.setProperty("--py", t.toFixed(3));
-      a.style.setProperty("--ps", (1 + .09 * Math.abs(t)).toFixed(3));
     });
     var rr = rail.getBoundingClientRect(), mark = vh * .6;
     rail.style.setProperty("--tp", Math.max(0, Math.min(1, (mark - rr.top - lag) / rr.height)).toFixed(3));
@@ -728,9 +722,9 @@
     paint(cur);
   }
 
-  /* Light moments that fire once when an element is mostly in view: card glints,
-     the underline under each section title, the contact line. */
-  var litEls = document.querySelectorAll(".card, .sec-head, .contact");
+  /* Light moments that fire once when an element is mostly in view: the underline
+     under each section title and the contact line. */
+  var litEls = document.querySelectorAll(".sec-head, .contact");
   if (still || !("IntersectionObserver" in window)) {
     litEls.forEach(function (el) { el.classList.add("lit"); });
   } else {
@@ -752,7 +746,6 @@
       var k = [].indexOf.call(el.parentNode.children, el);
       el.classList.add("rv");
       el.style.setProperty("--rd", Math.min(k, 6) * (el.parentNode.classList.contains("skills") ? .05 : .11) + "s");
-      if (el.classList.contains("card")) el.style.setProperty("--gd", (.5 + Math.min(k, 6) * .11) + "s");
       io.observe(el);
     });
   }
