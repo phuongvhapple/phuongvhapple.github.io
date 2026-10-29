@@ -148,6 +148,18 @@
   .job h3 { font-size: 22px; line-height: 1.15; }
   .job .at { font-family: var(--sub); font-weight: 500; font-size: 17px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); margin: 4px 0 10px; }
   .job p { margin: 0; color: var(--ink-dim); font-size: 16px; max-width: 68ch; }
+  /* full job description: collapsed to 0fr, expands inline via grid-template-rows */
+  .jd { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.7,.2,1); }
+  .jd > div { overflow: hidden; min-height: 0; }
+  .job.open .jd { grid-template-rows: 1fr; }
+  .jd h4 { margin: 20px 0 10px; font-family: var(--sub); font-weight: 700; font-size: 15px; letter-spacing: .16em; text-transform: uppercase; color: var(--yellow); }
+  .jd ul { margin: 0; padding: 0 0 4px; list-style: none; display: grid; gap: 8px; max-width: 72ch; }
+  .jd li { position: relative; padding-left: 20px; color: var(--ink-dim); font-size: 16px; line-height: 1.55; }
+  .jd li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, var(--yellow), var(--magenta)); }
+  .more { margin-top: 14px; padding: 7px 16px; border-radius: 999px; font-family: var(--sub); font-weight: 500; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); background: rgba(255,255,255,.1); border: 1px solid var(--glass-edge); cursor: pointer; transition: background .2s; }
+  .more:hover { background: rgba(255,255,255,.18); }
+  .more span { color: var(--yellow); }
+  .job.open .more { background: rgba(255,255,255,.16); }
 
   /* about */
   .about { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; }
@@ -238,7 +250,7 @@
     .field i { animation: none; translate: none; }
     .hero h1, .hero .facts, .card .art img { translate: none; }
     .rv { opacity: 1; transform: none; transition: none; }
-    .card, .btn, .art img, .gallery img { transition: none; }
+    .card, .btn, .art img, .gallery img, .jd { transition: none; }
   }
 </style>
 </head>
@@ -398,15 +410,79 @@
     im.onload = function () { box.classList.add("has-img"); requestAnimationFrame(function () { im.classList.add("on"); }); };
     im.src = src; box.insertBefore(im, box.firstChild);
   }
+  /* when, role, company, summary, full job description (from the 2026 CV) */
   var JOBS = [
-    ["2022 – Now", "Senior Design Officer", "Dai-ichi Life Vietnam", "Creative solutions tied to business and brand strategy. Key visual concepts, supplier direction and brand consistency."],
-    ["2019 – 2022", "Creative Manager", "Sunrise Events Vietnam", "Branding for IRONMAN Vietnam, Techcombank HCMC International Marathon, Sunrise Sprint and Landmark 81 Race to the Summit. Photo and video direction on race days."],
-    ["2018 – 2019", "Creative Manager", "CEN Group, Rising Star Media", "Design leadership across digital, event production, merchandise and marketing collateral. New branding for client projects."],
-    ["2018", "Creative Manager", "Laguna Lăng Cô, Banyan Tree Group", "Led the graphic team and the resort's digital image library, delivering collateral to Banyan Tree identity guidelines."],
-    ["2016 – 2018", "Creative Leader", "Nam Long Investment Corporation", "Corporate design lead from concept to execution, including project branding and company events."],
-    ["2013 – 2016", "Senior Designer", "Thien Minh Group", "Team lead for Victoria Hotels & Resorts, EMM Hotel, iVivu, Hai Au Aviation and cruise brands."],
-    ["2012 – 2013", "Senior Designer", "Innovo Joint-Stock Company", "Print and digital marketing pieces for clients and the Citypass guide."],
-    ["2010 – 2012", "Advertising Planning Specialist", "Sun Flower Media", "Magazine design for Tiếp Thị Gia Đình, Cosmopolitan and Her World, and the launch team for Tiep Thi Food."]
+    ["2022 – Present", "Senior Design Officer", "Dai-ichi Life Vietnam", "Creative solutions tied to business and brand strategy. Key visual concepts, supplier direction and brand consistency.", [
+      "Create and deliver creative solutions aligned with business strategy and brand strategy.",
+      "Work as a multimedia designer who understands marketing initiatives, strategic positioning and the target audience.",
+      "Manage and delegate responsibilities to suppliers and provide direction.",
+      "Collaborate with the team to develop creative and effective solutions.",
+      "Present completed ideas to team members and other internal teams.",
+      "Work closely with internal and external stakeholders to manage the execution plan.",
+      "Develop key visual concepts and ensure brand consistency."]],
+    ["2019 – 2022", "Creative Manager", "Sunrise Events Vietnam", "Branding for IRONMAN Vietnam, Techcombank HCMC International Marathon, Sunrise Sprint and Landmark 81 Race to the Summit. Photo and video direction on race days.", [
+      "Created and updated branding for the company's sport events: IRONMAN Vietnam, Techcombank Ho Chi Minh City International Marathon, Sunrise Sprint, LANDMARK 81 “Race to the Summit” and more.",
+      "Managed photography and videography on event days.",
+      "Designed event visuals.",
+      "Worked as design leader with a clear grasp of marketing initiatives, strategic positioning and the target audience.",
+      "Managed and delegated responsibilities to suppliers and provided direction.",
+      "Collaborated with the team to develop creative and effective solutions.",
+      "Worked with the wider team across different types of media.",
+      "Presented completed ideas to clients and team members.",
+      "Developed key visual concepts and ensured brand consistency."]],
+    ["2018 – 2019", "Creative Manager", "CEN Group, Rising Star Media", "Design leadership across digital, event production, merchandise and marketing collateral. New branding for client projects.", [
+      "Worked as design leader with a clear grasp of marketing initiatives, strategic positioning and the target audience.",
+      "Managed and delegated responsibilities to suppliers and provided direction.",
+      "Collaborated with the team to develop creative and effective solutions.",
+      "Worked with the wider team across digital platforms, event production, merchandise and marketing collateral.",
+      "Presented completed ideas to clients and team members.",
+      "Developed key visual concepts and ensured brand consistency.",
+      "Created new branding for client projects."]],
+    ["2018", "Creative Manager", "Laguna Lăng Cô, Banyan Tree Group", "Led the graphic team and the resort's digital image library, delivering collateral to Banyan Tree identity guidelines.", [
+      "Custodian of the Laguna Lăng Cô digital library, including photo and video imagery, public media and web imagery.",
+      "Supervised and led the graphic design team.",
+      "Designed and redesigned computer graphics, web graphics, logos, illustrations, advertisements, brochures and other visual communication.",
+      "Developed concepts, graphics and layouts for all collateral in line with the Banyan Tree Hotels & Resorts Corporate Identity Guidelines.",
+      "Analysed and planned the design framework according to each project's concept and specifications.",
+      "Completed project work within the timeline and estimated budget.",
+      "Ensured delivered work met company policies and standards.",
+      "Delegated work among junior team members and made sure quality work was completed on deadline.",
+      "Trained and mentored junior designers and entry-level staff.",
+      "Acted as the client's point of contact.",
+      "Made sure new techniques and processes were used to deliver the best design quality.",
+      "Kept up to date with the latest design techniques and procedures.",
+      "Suggested ways to improve design quality and resolve project issues.",
+      "Helped team members choose the right style, graphics, images and other visual elements for each project's objectives.",
+      "Used creative and marketing knowledge to develop new campaigns for specific targets.",
+      "Worked with colleagues across departments.",
+      "Determined how best to represent each concept visually.",
+      "Took on additional duties requested by the Department Manager and Management.",
+      "Aligned working practices with the vision of Banyan Tree Hotels & Resorts and Laguna Lăng Cô, consistently aiming to meet and exceed the expectations of internal and external guests."]],
+    ["2016 – 2018", "Creative Leader", "Nam Long Investment Corporation", "Corporate design lead from concept to execution, including project branding and company events.", [
+      "Worked as the corporate design leader with a clear grasp of marketing initiatives, strategic positioning and the target audience.",
+      "Managed and delegated responsibilities to suppliers and provided direction.",
+      "Worked with the wider team across different types of media.",
+      "Took work from concept to final execution within deadlines.",
+      "Presented completed ideas to clients and team members.",
+      "Developed key visuals and ensured brand consistency.",
+      "Designed for and supported all company events.",
+      "Created new branding for the company's projects."]],
+    ["2013 – 2016", "Senior Designer", "Thien Minh Hospitality (Thien Minh Group)", "Team lead for Victoria Hotels & Resorts, EMM Hotel, iVivu, Hai Au Aviation and cruise brands.", [
+      "Worked as team leader with a clear grasp of marketing initiatives, strategic positioning and the target audience.",
+      "Produced sketches, storyboards and roughs to visualise ideas.",
+      "Worked with the wider team across different types of media.",
+      "Took work from concept to final execution within deadlines.",
+      "Managed and delegated responsibilities to other designers and provided direction.",
+      "Presented completed ideas to clients and team members.",
+      "Brands handled: Victoria Hotels & Resorts (8 resorts, Victoria Cruises, Victoria Mekong Coach, Victoria Express Train), EMM Hotel & Resorts, L'Azalee Cruise, Lady Hau Cruise, iVivu and Hai Au Aviation."]],
+    ["2012 – 2013", "Senior Designer", "Innovo Joint-Stock Company", "Print and digital marketing pieces for clients and the Citypass guide.", [
+      "Designed and produced marketing communications (print and digital) for clients and the Citypass Guide.",
+      "Collaborated with the creative team, internal account teams and clients to develop creative solutions and carry them across a variety of channels."]],
+    ["2010 – 2012", "Advertising Planning Specialist", "Sun Flower Media", "Magazine design for Tiếp Thị Gia Đình, Cosmopolitan and Her World, and the launch team for Tiep Thi Food.", [
+      "Designed for the magazines Tiếp Thị Gia Đình, Cosmopolitan and Her World.",
+      "Followed up the communication strategy for advertising campaigns, including targeting the right audience and setting the tone and message.",
+      "Managed project quality and timelines.",
+      "Joined the team that launched Tiep Thi Food, a gourmet food store."]]
   ];
 
   var grid = document.getElementById("grid");
@@ -423,11 +499,22 @@
   document.getElementById("work-note").textContent = PROJECTS.length + " projects · " + total + " images";
 
   var rail = document.getElementById("rail");
-  JOBS.forEach(function (j) {
+  JOBS.forEach(function (j, n) {
     var el = document.createElement("article");
     el.className = "job glass";
-    el.innerHTML = '<time>' + j[0] + '</time><div><h3>' + j[1] + '</h3><div class="at">' + j[2] + '</div><p>' + j[3] + '</p></div>';
+    var id = "jd-" + n;
+    el.innerHTML = '<time>' + j[0] + '</time><div><h3>' + j[1] + '</h3><div class="at">' + j[2] + '</div><p>' + j[3] + '</p>' +
+      '<div class="jd" id="' + id + '"><div><h4>Responsibilities</h4><ul>' + j[4].map(function (t) { return '<li>' + t + '</li>'; }).join("") + '</ul></div></div>' +
+      '<button class="more" type="button" aria-expanded="false" aria-controls="' + id + '"><span>Read more</span> · ' + j[4].length + ' points</button></div>';
     rail.appendChild(el);
+  });
+  rail.addEventListener("click", function (e) {
+    var b = e.target.closest(".more"); if (!b) return;
+    var open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", open);
+    b.closest(".job").classList.toggle("open", open);
+    b.querySelector("span").textContent = open ? "Show less" : "Read more";
+    if (!open) { var job = b.closest(".job"); if (job.getBoundingClientRect().top < 0) job.scrollIntoView({ block: "start" }); }
   });
 
   /* Project view, routed by #<slug> so each project has its own link. */
