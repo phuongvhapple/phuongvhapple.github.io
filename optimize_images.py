@@ -30,7 +30,7 @@ FOLDERS = {
     "FREELANCE": "freelancer",
 }
 COVERS = {
-    "dai-ichi-life-vietnam": "350810391_1266111930966058_4056706508442044840_n.jpg",
+    "dai-ichi-life-vietnam": "00_Daiichi-portal-thumbnail.jpg",
     "sunrise-events-vietnam": "#1-Urban-Poster-Billboard-Mock-Up---Night-Edition.jpg",
     "cen-group-rising-star-media": "6MC_Key-Visual_FINAL.png",
     "laguna-lang-co": "LAGUNA_Brochure_Co gai & Chu tho_Page_01.jpg",
