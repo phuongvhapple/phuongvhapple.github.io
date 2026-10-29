@@ -3,7 +3,7 @@
 Needs Pillow (pip install Pillow). Writes, per project:
   assets/img/<slug>/NN.webp         full view, longest side 1600px
   assets/img/<slug>/thumbs/NN.webp  grid/gallery thumbnail, longest side 720px
-plus assets/img/avatar.webp (nav portrait), and assets/img/manifest.json, which build.py inlines into index.html.
+plus assets/img/avatar.webp and avatar-lg.webp (portrait for the nav and the intro), and assets/img/manifest.json, which build.py inlines into index.html.
 
 Re-run after adding or removing originals. COVERS picks the card image per project
 (file name inside the source folder); otherwise the first file is used.
@@ -52,12 +52,15 @@ def save(im, path, size):
 
 
 def avatar():
-    """Head-and-shoulders crop of Images/Avatar.png for the nav (transparent WebP)."""
+    """Head-and-shoulders crop of Images/Avatar.png: avatar.webp for the nav,
+    avatar-lg.webp for the intro's round frame (transparent WebP)."""
     im = Image.open(SRC / "Avatar.png").convert("RGBA")
     w = im.width
     side = round(w * 0.78)
     left = 0
-    im.crop((left, 0, left + side, side)).resize((192, 192), Image.LANCZOS).save(OUT / "avatar.webp", "WEBP", quality=85, method=6)
+    face = im.crop((left, 0, left + side, side))
+    face.resize((192, 192), Image.LANCZOS).save(OUT / "avatar.webp", "WEBP", quality=85, method=6)
+    face.resize((640, 640), Image.LANCZOS).save(OUT / "avatar-lg.webp", "WEBP", quality=84, method=6)
 
 
 def main():
