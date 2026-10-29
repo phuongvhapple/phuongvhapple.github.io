@@ -235,6 +235,17 @@
   .gallery button { display: block; width: 100%; margin: 0 0 12px; padding: 0; border: 0; border-radius: 16px; overflow: hidden; cursor: zoom-in; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); break-inside: avoid; }
   .gallery img { display: block; width: 100%; height: auto; max-height: 900px; object-fit: cover; object-position: top; transition: transform .4s ease, opacity .4s; }
   .gallery button:hover img { transform: scale(1.03); }
+  /* videos: YouTube poster tiles that swap to the player on tap */
+  .videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; padding: 0 14px; }
+  .vid { min-width: 0; animation: up .8s var(--ease) var(--gi, 0s) both; }
+  .vid .frame { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 16px; overflow: hidden; cursor: pointer; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+  .vid .frame img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease), filter .5s; filter: saturate(.9) brightness(.8); }
+  .vid .frame:hover img { transform: scale(1.04); filter: none; }
+  .vid .play { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.16); -webkit-backdrop-filter: blur(10px) saturate(1.6); backdrop-filter: blur(10px) saturate(1.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), 0 10px 30px rgba(0,0,0,.35); transition: transform .4s var(--ease), background .4s; }
+  .vid .play::after { content: ""; margin-left: 5px; border-style: solid; border-width: 11px 0 11px 18px; border-color: transparent transparent transparent var(--yellow); }
+  .vid .frame:hover .play { transform: scale(1.1); background: rgba(255,255,255,.24); }
+  .vid iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .vid p { margin: 10px 4px 0; font-size: 15px; line-height: 1.4; color: var(--ink-dim); }
   .pager { display: flex; justify-content: space-between; gap: 12px; padding: 32px 14px 0; flex-wrap: wrap; }
   .pager .btn { font-size: 15px; }
 
@@ -488,6 +499,10 @@
         <div class="links" id="m-links"></div>
       </div>
     </div>
+    <div id="m-vids" hidden>
+      <div class="gal-head"><h4>Videos</h4><span id="m-vcount"></span></div>
+      <div class="videos" id="m-videos"></div>
+    </div>
     <div class="gal-head"><h4>Gallery</h4><span id="m-count"></span></div>
     <div class="gallery" id="m-gallery"></div>
     <nav class="pager" aria-label="Other projects">
@@ -510,7 +525,8 @@
 <script>
   var PROJECTS = [
     { code: "DLVN", role: "Senior Design Officer", when: "2022 to present", title: "Dai-ichi Life Vietnam", a: "#1d9b5a", b: "#fdc400", slug: "dai-ichi-life-vietnam",
-      text: "Creates visual solutions that follow the business and brand strategy. Works as a multimedia designer who understands marketing initiatives, positioning and the target audience, and builds the key visual concepts that keep the brand consistent. Directs suppliers, collaborates with the team and with internal and external stakeholders to manage execution, and presents finished ideas to internal teams." },
+      text: "Creates visual solutions that follow the business and brand strategy. Works as a multimedia designer who understands marketing initiatives, positioning and the target audience, and builds the key visual concepts that keep the brand consistent. Directs suppliers, collaborates with the team and with internal and external stakeholders to manage execution, and presents finished ideas to internal teams.",
+      videos: [["eKYC sign-up guide for the Dai-ichi Connect app", "RMwDlTqalVE"], ["Online confirmation of insurance advice (ICS)", "Ec1s6ckMU6o"]] },
     { code: "SEV", role: "Creative Manager", when: "2019 to 2022", title: "Sunrise Events Vietnam", a: "#ff3d7f", b: "#1237ff", slug: "sunrise-events-vietnam",
       text: "Led branding and visual development for major sporting events: IRONMAN Vietnam, the Techcombank Ho Chi Minh City International Marathon, Sunrise Sprint and LANDMARK 81 Race to the Summit. Also covered event-day photography and video, key visual concepts, on-site visual design, supplier coordination and client presentations." },
     { code: "CEN", role: "Creative Manager", when: "2018 to 2019", title: "CEN Group", a: "#8b2fe0", b: "#ff6a3d", slug: "cen-group-rising-star-media",
@@ -518,7 +534,7 @@
     { code: "LLC", role: "Creative Manager", when: "2018", title: "Laguna Lăng Cô", a: "#17b6d6", b: "#8b2fe0", slug: "laguna-lang-co",
       text: "Managed the resort's digital asset library and led its graphic team to the Banyan Tree Hotels & Resorts brand guidelines. The role covered concept development, design execution, quality control, timelines and budgets, mentoring junior designers, cross-department work, acting as client contact and contributing to creative campaigns.",
       extra: "Brought the whole Laguna Lăng Cô brand identity into one consistent system.",
-      links: [["Watch video 1", "https://www.youtube.com/watch?v=RaKUM8snam4"], ["Watch video 2", "https://www.youtube.com/watch?v=Qq53zMp9LVM"], ["Watch video 3", "https://youtu.be/uyqwvD97K8w"]] },
+      videos: [["Laguna Lăng Cô 5th anniversary (2018)", "RaKUM8snam4"], ["Journey To The East by Hulos 2018, trailer", "Qq53zMp9LVM"], ["Journey To The East by Hulos 2018, official film", "uyqwvD97K8w"]] },
     { code: "NLG", role: "Creative Leader", when: "2016 to 2018", title: "Nam Long Group", a: "#2f7bff", b: "#0fbf9f", slug: "nam-long-group",
       text: "Corporate design lead for Nam Long Investment Corporation. Developed key visuals, created branding for company projects, supported corporate events with design, directed suppliers and worked across media. Took projects from concept to delivery and presented solutions to clients and internal teams." },
     { code: "TMG", role: "Senior Designer", when: "2013 to 2016", title: "Thien Minh Group", a: "#c9a24a", b: "#1b3cff", slug: "thien-minh-hospitality-thien-minh-group",
@@ -666,7 +682,24 @@
     extra.textContent = p.extra || ""; extra.hidden = !p.extra;
     var links = document.getElementById("m-links");
     links.innerHTML = "";
-    (p.links || []).forEach(function (l) {
+    /* the artifact cannot embed YouTube, so there the videos become link buttons */
+    var vids = p.videos || [], vbox = document.getElementById("m-videos");
+    var lnk = (p.links || []).concat(EMBEDDED ? vids.map(function (v) { return ["Watch: " + v[0], "https://www.youtube.com/watch?v=" + v[1]]; }) : []);
+    vbox.innerHTML = "";
+    document.getElementById("m-vids").hidden = EMBEDDED || !vids.length;
+    document.getElementById("m-vcount").textContent = vids.length + (vids.length > 1 ? " films" : " film");
+    if (!EMBEDDED) vids.forEach(function (v, k) {
+      var d = document.createElement("div"); d.className = "vid";
+      d.style.setProperty("--gi", (.25 + k * .08) + "s");
+      var b = document.createElement("button"); b.type = "button"; b.className = "frame"; b.dataset.id = v[1];
+      b.setAttribute("aria-label", "Play video: " + v[0]);
+      var img = new Image(); img.src = "https://i.ytimg.com/vi/" + v[1] + "/hqdefault.jpg"; img.alt = ""; img.loading = "lazy";
+      var s = document.createElement("span"); s.className = "play";
+      b.appendChild(img); b.appendChild(s);
+      var t = document.createElement("p"); t.textContent = v[0];
+      d.appendChild(b); d.appendChild(t); vbox.appendChild(d);
+    });
+    lnk.forEach(function (l) {
       var a = document.createElement("a");
       a.className = "btn"; a.href = l[1]; a.target = "_blank"; a.rel = "noopener"; a.textContent = l[0];
       links.appendChild(a);
@@ -696,6 +729,7 @@
     closeLb();
     if (!current) return;
     current = null;
+    document.querySelectorAll("#m-videos iframe").forEach(function (f) { f.remove(); }); /* stop playback */
     if (still) scrim.hidden = true;
     else { scrim.classList.add("out"); closing = setTimeout(function () { scrim.hidden = true; scrim.classList.remove("out"); }, 320); }
     document.body.classList.remove("locked");
@@ -744,6 +778,15 @@
     var b = document.querySelector('#m-gallery button[data-k="' + lbIndex + '"]');
     if (b) b.focus({ preventScroll: true });
   }
+  document.getElementById("m-videos").addEventListener("click", function (e) {
+    var b = e.target.closest(".frame");
+    if (!b || b.querySelector("iframe")) return;
+    var f = document.createElement("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/" + b.dataset.id + "?autoplay=1&playsinline=1&rel=0";
+    f.title = b.getAttribute("aria-label");
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
+    b.appendChild(f);
+  });
   document.getElementById("m-gallery").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (b) openLb(+b.dataset.k);
   });
@@ -859,7 +902,7 @@
 
   /* Tap light on anything pressable. */
   if (!still) document.addEventListener("pointerdown", function (e) {
-    var t = e.target.closest && e.target.closest(".btn, .card, .skills li, .more, .nav a.l, .row button, .gallery button");
+    var t = e.target.closest && e.target.closest(".btn, .card, .skills li, .more, .nav a.l, .row button, .gallery button, .vid .frame");
     if (!t) return;
     if (t.classList.contains("card")) t = t.querySelector(".art");
     var r = t.getBoundingClientRect(), d = document.createElement("span"), size = Math.max(r.width, r.height) * 2.2;

@@ -6,7 +6,8 @@ Needs Pillow (pip install Pillow). Writes, per project:
 plus assets/img/avatar.webp and avatar-lg.webp (portrait for the nav and the intro), and assets/img/manifest.json, which build.py inlines into index.html.
 
 Re-run after adding or removing originals. COVERS picks the card image per project
-(file name inside the source folder); otherwise the first file is used.
+(file name inside the source folder); otherwise the first file is used. Files in a
+"New" subfolder come right after the cover, ahead of the older work.
 """
 import json
 import re
@@ -68,12 +69,15 @@ def main():
     avatar()
     manifest = {}
     for folder, slug in FOLDERS.items():
-        files = sorted(
-            (f for f in (SRC / folder).iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),
-            key=lambda f: natural(f.name),
-        )
+        files = []
+        for d in (SRC / folder / "New", SRC / folder):
+            if d.is_dir():
+                files += sorted(
+                    (f for f in d.iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),
+                    key=lambda f: natural(f.name),
+                )
         cover = COVERS.get(slug)
-        files.sort(key=lambda f: f.name != cover)  # stable: cover first, rest keep order
+        files.sort(key=lambda f: f.name != cover)  # stable: cover first, then New, then the rest
         (OUT / slug / "thumbs").mkdir(parents=True, exist_ok=True)
         items = []
         for n, f in enumerate(files, 1):
