@@ -42,9 +42,9 @@
   h1, h2, h3 { font-family: var(--headline); font-weight: 600; text-wrap: balance; margin: 0; }
 
   /* sub-title style: Barlow Condensed, spaced capitals */
-  .sub { font-family: var(--sub); font-weight: 700; text-transform: uppercase; letter-spacing: .16em; }
+  .sub { font-family: var(--sub); font-weight: 400; text-transform: uppercase; letter-spacing: .16em; }
   /* muted, informational labels use the Medium weight; yellow labels and controls stay Bold */
-  .sec-note.sub, .label.sub, .facts dt.sub { font-weight: 500; }
+  .sec-note.sub, .label.sub, .facts dt.sub { font-weight: 400; }
 
   .field { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .field i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .75; will-change: transform; }
@@ -102,7 +102,7 @@
   /* hero */
   .hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 36px; align-items: start; padding: 68px 0 48px; }
   .eyebrow { font-size: 15px; color: var(--yellow); margin: 0 0 16px; letter-spacing: .5em; }
-  h1 { font-size: clamp(44px, 8.6vw, 96px); line-height: .96; letter-spacing: -.01em; text-transform: uppercase; }
+  h1 { font-size: clamp(38px, 7.2vw, 80px); line-height: 1.14; letter-spacing: -.01em; text-transform: uppercase; }
   /* padding gives Vietnamese accents room inside the clipped text background */
   h1 .ln { display: block; padding-top: .14em; margin-top: -.14em; background: linear-gradient(100deg, var(--c) 0 38%, var(--c2) 50%, var(--c) 62% 100%); background-size: 300% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent; --c: var(--ink); --c2: #ffd7ec; }
   h1 .hl { --c: var(--yellow); --c2: #fff7d6; }
@@ -111,7 +111,7 @@
   .label { font-size: 15px; color: var(--ink-faint); margin: 34px 0 12px; letter-spacing: .4em; }
   .summary { display: grid; gap: 14px; max-width: 58ch; }
   .summary p { margin: 0; color: var(--ink-dim); }
-  .summary p:first-child { color: var(--ink); font-family: var(--sub); font-weight: 500; font-size: 23px; line-height: 1.4; letter-spacing: .01em; }
+  .summary p:first-child { color: #d9d7ea; font-family: var(--sub); font-weight: 500; font-size: 20px; line-height: 1.45; letter-spacing: .01em; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
   .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 26px; border-radius: 999px; text-decoration: none; font-family: var(--sub); font-weight: 700; font-size: 17px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--glass-edge); cursor: pointer; color: var(--ink); background: linear-gradient(140deg, var(--glass-hi), var(--glass-lo)); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 10px 30px -12px var(--shadow); transition: transform .2s, background .2s; }
   .btn:hover { transform: translateY(-2px); background: linear-gradient(140deg, rgba(255,255,255,.24), rgba(255,255,255,.07)); }
@@ -415,7 +415,7 @@
         <p style="--d:.7s">I'm a Design Manager who leads creative teams of up to 10 people. I run structured processes with measurable KPIs, clear resource allocation and efficient delivery in corporate, deadline-driven environments.</p>
         <p style="--d:.8s">I stay hands-on. When timelines are tight or capacity runs short, I step into the work myself, clear the bottleneck and keep the team's performance sustainable.</p>
         <p style="--d:.9s">I treat visual storytelling as a business tool: turning briefs into well-structured visuals that follow brand strategy across digital, graphic and integrated touchpoints.</p>
-        <p style="--d:1s">I already have a working foundation in using AI in my day-to-day design work. I use Claude, ChatGPT and Gemini side by side, apply them where they genuinely improve speed and quality, and pick up image and video generation tools quickly, such as Magnific Space with its node-based flows, Seedream and Dreamina. I'm excited to join a team that uses AI professionally and effectively, and ready to grow with it.</p>
+        <p style="--d:1s">AI is part of my daily design workflow, from image generation and video editing to automating graphics-related tasks. I regularly use Claude, ChatGPT and Gemini alongside one another, choosing the right tool for each task. I’m comfortable learning new AI tools and would welcome the opportunity to explore them further with the company’s support.</p>
       </div>
       <div class="actions" style="--d:1.1s">
         <a class="btn primary" href="#work">Discover my work</a>
