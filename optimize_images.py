@@ -7,7 +7,9 @@ plus assets/img/avatar.webp and avatar-lg.webp (portrait for the nav and the int
 
 Re-run after adding or removing originals. COVERS picks the card image per project
 (file name inside the source folder); otherwise the first file is used. Files in a
-"New" subfolder come right after the cover, ahead of the older work.
+"New" subfolder come right after the cover, ahead of the older work. Other subfolders
+(e.g. one per brand, "1 Dong Nguyen", "2 SR Vietnam") follow in name order, so a
+gallery groups by brand; a subfolder whose name starts with "_" is skipped.
 """
 import json
 import re
@@ -70,7 +72,9 @@ def main():
     manifest = {}
     for folder, slug in FOLDERS.items():
         files = []
-        for d in (SRC / folder / "New", SRC / folder):
+        groups = sorted((d for d in (SRC / folder).iterdir() if d.is_dir() and d.name != "New" and not d.name.startswith("_")),
+                        key=lambda d: natural(d.name))
+        for d in [SRC / folder / "New", SRC / folder] + groups:
             if d.is_dir():
                 files += sorted(
                     (f for f in d.iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),

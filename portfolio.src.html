@@ -231,7 +231,9 @@
   .gal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 40px 14px 16px; }
   .gal-head h4 { margin: 0; font-family: var(--sub); font-weight: 700; font-size: 22px; letter-spacing: .16em; text-transform: uppercase; color: var(--yellow); }
   .gal-head span { font-family: var(--sub); font-weight: 500; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
-  .gallery { columns: 3 240px; column-gap: 12px; padding: 0 14px; }
+  /* masonry filled row by row (each image goes to the shortest column), so the gallery reads in file order */
+  .gallery { display: flex; align-items: flex-start; gap: 12px; padding: 0 14px; }
+  .gallery .gcol { flex: 1 1 0; min-width: 0; }
   .gallery button { display: block; width: 100%; margin: 0 0 12px; padding: 0; border: 0; border-radius: 16px; overflow: hidden; cursor: zoom-in; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); break-inside: avoid; }
   .gallery img { display: block; width: 100%; height: auto; max-height: 900px; object-fit: cover; object-position: top; transition: transform .4s ease, opacity .4s; }
   .gallery button:hover img { transform: scale(1.03); }
@@ -360,7 +362,7 @@
     .sheet { padding: 10px 10px 24px; border-radius: 28px; }
     .sheet .hero-art { aspect-ratio: 4 / 3; }
     .sheet .body { grid-template-columns: minmax(0, 1fr); padding: 22px 8px 0; }
-    .gallery { columns: 2 140px; column-gap: 8px; padding: 0 4px; }
+    .gallery { gap: 8px; padding: 0 4px; }
     .gallery button { margin-bottom: 8px; border-radius: 12px; }
     .gal-head, .pager { padding-left: 8px; padding-right: 8px; }
   }
@@ -717,14 +719,16 @@
       b.style.setProperty("--gi", (.25 + Math.min(k, 12) * .055) + "s");
       var img = new Image(); img.src = thumb(p, k); img.alt = ""; img.loading = "lazy"; img.decoding = "async";
       img.width = 720; img.height = Math.round(720 / im[1]);
-      b.appendChild(img); gal.appendChild(b);
+      b.appendChild(img); b._ar = im[1]; gal.appendChild(b);
     });
+    gal._cols = 0;
     var prev = PROJECTS[(i + PROJECTS.length - 1) % PROJECTS.length], next = PROJECTS[(i + 1) % PROJECTS.length];
     var mp = document.getElementById("m-prev"), mn = document.getElementById("m-next");
     mp.href = "#" + prev.slug; mp.textContent = "← " + prev.title;
     mn.href = "#" + next.slug; mn.textContent = next.title + " →";
     clearTimeout(closing); scrim.classList.remove("out");
     scrim.hidden = false; scrim.scrollTop = 0;
+    layoutGallery(); /* needs the sheet visible to measure its width */
     document.body.classList.add("locked");
     document.title = p.title + " · Vũ Hoàng Phương";
     document.getElementById("m-close").focus({ preventScroll: true });
@@ -800,6 +804,24 @@
     f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
     b.appendChild(f);
   });
+  function layoutGallery() {
+    var gal = document.getElementById("m-gallery");
+    var items = [].slice.call(gal.querySelectorAll("button")).sort(function (a, b) { return a.dataset.k - b.dataset.k; });
+    if (!items.length) return;
+    var narrow = innerWidth <= 760, gap = narrow ? 8 : 12, w = gal.clientWidth;
+    var n = narrow ? 2 : Math.max(1, Math.min(3, Math.floor((w + gap) / (240 + gap))));
+    if (n === gal._cols && gal.querySelector(".gcol")) return;
+    gal._cols = n;
+    var cols = [], h = [];
+    for (var c = 0; c < n; c++) { var d = document.createElement("div"); d.className = "gcol"; cols.push(d); h.push(0); }
+    var cw = (w - gap * (n - 1)) / n;
+    items.forEach(function (b) {
+      var c = h.indexOf(Math.min.apply(null, h));
+      cols[c].appendChild(b); h[c] += Math.min(cw / b._ar, 900) + gap;
+    });
+    gal.innerHTML = ""; cols.forEach(function (d) { gal.appendChild(d); });
+  }
+  addEventListener("resize", function () { if (current) layoutGallery(); });
   document.getElementById("m-gallery").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (b) openLb(+b.dataset.k);
   });
