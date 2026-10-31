@@ -41,15 +41,19 @@ COVERS = {
     "thien-minh-hospitality-thien-minh-group": "Overview.jpg",
     "freelancer": "Keppel Land_billboard_mockup_v2_03.jpg",
 }
-# Slide decks shown as flip books instead of gallery images: id -> folder of slide images, or a
-# PDF, under Images/. Each page becomes assets/decks/<id>/NN.webp (1600x900) and the deck
-# assets/decks/<id>.pdf (a PDF source is copied as is; reading one needs PyMuPDF).
+# Decks shown as flip books instead of gallery images: id -> (folder of page images, or a PDF,
+# under Images/; kind). "slides": pages fitted to 16:9 and turned one at a time. "book": a
+# printed piece (brochure, flyer) kept at its own page shape, with spreads split into single
+# pages, and shown as an open two-page book with covers. Pages become assets/decks/<id>/NN.webp
+# and the deck assets/decks/<id>.pdf (a PDF source is copied as is; reading one needs PyMuPDF).
 DECKS = {
-    "sr-vietnam-brand-story": "FREELANCE/_decks/SR Vietnam Brand Story",
-    "sac-nhanh-brand-concept": "FREELANCE/_decks/Sac Nhanh Brand Concept",
-    "flow-english-brand-proposal": "FREELANCE/_decks/TES_Proposal_round 1_v3.pdf",
+    "sr-vietnam-brand-story": ("FREELANCE/_decks/SR Vietnam Brand Story", "slides"),
+    "sac-nhanh-brand-concept": ("FREELANCE/_decks/Sac Nhanh Brand Concept", "slides"),
+    "flow-english-brand-proposal": ("FREELANCE/_decks/TES_Proposal_round 1_v3.pdf", "slides"),
+    "laguna-lang-co-flyer": ("LAGUNA LANG CO/2/LLC_Flyer_052018_Pedit_V1.pdf", "book"),
 }
-DECK_SIZE = (1600, 900)
+DECK_SIZE = (1600, 900)  # slides
+BOOK_HEIGHT = 1600       # book pages
 SKIP = re.compile(r"^(\.|Screenshot )")
 EXT = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -77,9 +81,9 @@ def avatar():
 
 
 def decks():
-    """Pages for the flip book viewer plus a PDF of each deck (pages fitted to 16:9)."""
+    """Pages for the flip book viewer plus a PDF of each deck. Returns {id: [pages, aspect, kind]}."""
     out = {}
-    for deck, folder in DECKS.items():
+    for deck, (folder, kind) in DECKS.items():
         src = SRC / folder
         d = ROOT / "assets" / "decks" / deck
         d.mkdir(parents=True, exist_ok=True)
@@ -87,14 +91,33 @@ def decks():
             import io
             import pymupdf
             doc = pymupdf.open(src)
-            sources = [Image.open(io.BytesIO(pg.get_pixmap(dpi=round(72 * DECK_SIZE[0] / pg.rect.width)).tobytes("png"))) for pg in doc]
+            if kind == "book":
+                sources = [Image.open(io.BytesIO(pg.get_pixmap(dpi=round(72 * BOOK_HEIGHT / pg.rect.height)).tobytes("png"))) for pg in doc]
+            else:
+                sources = [Image.open(io.BytesIO(pg.get_pixmap(dpi=round(72 * DECK_SIZE[0] / pg.rect.width)).tobytes("png"))) for pg in doc]
         else:
             files = sorted((f for f in src.iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),
                            key=lambda f: natural(f.name))
             sources = [ImageOps.exif_transpose(Image.open(f)) for f in files]
+        if kind == "book":
+            # a spread is about twice as wide as a single page: cut it down the middle
+            single = min(im.width / im.height for im in sources)
+            halves = []
+            for im in sources:
+                if im.width / im.height > single * 1.5:
+                    w = im.width // 2
+                    halves += [im.crop((0, 0, w, im.height)), im.crop((w, 0, im.width, im.height))]
+                else:
+                    halves.append(im)
+            size = (round(BOOK_HEIGHT * single), BOOK_HEIGHT)
+            sources = [im.convert("RGB").resize(size, Image.LANCZOS) for im in halves]
+        else:
+            size = DECK_SIZE
+            sources = [ImageOps.fit(im.convert("RGB"), size, Image.LANCZOS) for im in sources]
+        for f in d.glob("*.webp"):
+            f.unlink()
         pages = []
         for n, im in enumerate(sources, 1):
-            im = ImageOps.fit(im.convert("RGB"), DECK_SIZE, Image.LANCZOS)
             im.save(d / f"{n:02d}.webp", "WEBP", quality=82, method=6)
             pages.append(im)
         pdf = ROOT / "assets" / "decks" / f"{deck}.pdf"
@@ -102,7 +125,7 @@ def decks():
             shutil.copyfile(src, pdf)
         else:
             pages[0].save(pdf, "PDF", save_all=True, append_images=pages[1:], resolution=150, quality=85)
-        out[deck] = len(pages)
+        out[deck] = [len(pages), round(size[0] / size[1], 4), kind]
         print(f"deck {deck}: {len(pages)} pages")
     return out
 
