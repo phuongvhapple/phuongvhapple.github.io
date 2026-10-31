@@ -48,7 +48,7 @@ DECKS = {
 }
 DECK_SIZE = (1600, 900)
 SKIP = re.compile(r"^(\.|Screenshot )")
-EXT = {".jpg", ".jpeg", ".png"}
+EXT = {".jpg", ".jpeg", ".png", ".webp"}
 
 
 def natural(name):
