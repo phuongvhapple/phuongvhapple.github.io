@@ -13,6 +13,7 @@ gallery groups by brand; a subfolder whose name starts with "_" is skipped.
 """
 import json
 import re
+import shutil
 from pathlib import Path
 
 from PIL import Image, ImageOps
@@ -40,11 +41,13 @@ COVERS = {
     "thien-minh-hospitality-thien-minh-group": "Overview.jpg",
     "freelancer": "Keppel Land_billboard_mockup_v2_03.jpg",
 }
-# Slide decks shown as flip books instead of gallery images: id -> folder under Images/.
-# Each page becomes assets/decks/<id>/NN.webp (1600x900) and the whole deck assets/decks/<id>.pdf.
+# Slide decks shown as flip books instead of gallery images: id -> folder of slide images, or a
+# PDF, under Images/. Each page becomes assets/decks/<id>/NN.webp (1600x900) and the deck
+# assets/decks/<id>.pdf (a PDF source is copied as is; reading one needs PyMuPDF).
 DECKS = {
     "sr-vietnam-brand-story": "FREELANCE/_decks/SR Vietnam Brand Story",
     "sac-nhanh-brand-concept": "FREELANCE/_decks/Sac Nhanh Brand Concept",
+    "flow-english-brand-proposal": "FREELANCE/_decks/TES_Proposal_round 1_v3.pdf",
 }
 DECK_SIZE = (1600, 900)
 SKIP = re.compile(r"^(\.|Screenshot )")
@@ -77,16 +80,28 @@ def decks():
     """Pages for the flip book viewer plus a PDF of each deck (pages fitted to 16:9)."""
     out = {}
     for deck, folder in DECKS.items():
-        files = sorted((f for f in (SRC / folder).iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),
-                       key=lambda f: natural(f.name))
+        src = SRC / folder
         d = ROOT / "assets" / "decks" / deck
         d.mkdir(parents=True, exist_ok=True)
+        if src.suffix.lower() == ".pdf":
+            import io
+            import pymupdf
+            doc = pymupdf.open(src)
+            sources = [Image.open(io.BytesIO(pg.get_pixmap(dpi=round(72 * DECK_SIZE[0] / pg.rect.width)).tobytes("png"))) for pg in doc]
+        else:
+            files = sorted((f for f in src.iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),
+                           key=lambda f: natural(f.name))
+            sources = [ImageOps.exif_transpose(Image.open(f)) for f in files]
         pages = []
-        for n, f in enumerate(files, 1):
-            im = ImageOps.fit(ImageOps.exif_transpose(Image.open(f)).convert("RGB"), DECK_SIZE, Image.LANCZOS)
+        for n, im in enumerate(sources, 1):
+            im = ImageOps.fit(im.convert("RGB"), DECK_SIZE, Image.LANCZOS)
             im.save(d / f"{n:02d}.webp", "WEBP", quality=82, method=6)
             pages.append(im)
-        pages[0].save(ROOT / "assets" / "decks" / f"{deck}.pdf", "PDF", save_all=True, append_images=pages[1:], resolution=150, quality=85)
+        pdf = ROOT / "assets" / "decks" / f"{deck}.pdf"
+        if src.suffix.lower() == ".pdf":
+            shutil.copyfile(src, pdf)
+        else:
+            pages[0].save(pdf, "PDF", save_all=True, append_images=pages[1:], resolution=150, quality=85)
         out[deck] = len(pages)
         print(f"deck {deck}: {len(pages)} pages")
     return out
