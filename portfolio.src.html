@@ -248,6 +248,31 @@
   .vid .frame:hover .play { transform: scale(1.1); background: rgba(255,255,255,.24); }
   .vid iframe, .vid video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
   .vid p { margin: 10px 4px 0; font-size: 15px; line-height: 1.4; color: var(--ink-dim); }
+  /* brand decks: a slide deck as a stacked book that opens into a page-flip viewer */
+  .decks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 22px 16px; padding: 6px 14px 0; }
+  .deck { min-width: 0; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; animation: up .8s var(--ease) var(--gi, 0s) both; }
+  .deck .cover { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 6px 14px 14px 6px; overflow: hidden; box-shadow: 6px 6px 0 -1px #2a2a44, 12px 12px 0 -2px #1c1c33, 0 24px 40px -18px #000; transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .deck .cover img { width: 100%; height: 100%; object-fit: cover; }
+  .deck .cover::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7%; background: linear-gradient(90deg, rgba(0,0,0,.45), rgba(255,255,255,.12) 70%, transparent); z-index: 1; }
+  .deck .cover::after { content: "Flip through"; position: absolute; right: 12px; bottom: 12px; padding: 7px 14px; border-radius: 999px; font-family: var(--sub); font-weight: 500; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: #1a1400; background: var(--yellow); }
+  .deck:hover .cover { transform: translate(-3px, -4px) rotate(-1deg); box-shadow: 9px 10px 0 -1px #2a2a44, 18px 20px 0 -2px #1c1c33, 0 34px 50px -18px #000; }
+  .deck b { display: block; margin: 16px 4px 2px; font-family: var(--headline); font-weight: 600; font-size: 20px; }
+  .deck span { display: block; margin: 0 4px; font-family: var(--sub); font-weight: 500; font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+  .fb { position: fixed; inset: 0; z-index: 85; display: grid; grid-template-rows: auto 1fr auto; background: radial-gradient(90% 70% at 50% 45%, #1a1840, rgba(2,2,14,.97)); animation: fadeIn .3s ease both; }
+  .fb[hidden] { display: none; }
+  .fb-top { display: flex; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top, 0px)) 16px 8px; }
+  .fb-name { flex: 1; min-width: 0; }
+  .fb-name b { display: block; font-family: var(--headline); font-weight: 600; font-size: 20px; }
+  .fb-name span { font-family: var(--sub); font-weight: 500; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+  .fb-top .btn { height: 44px; padding: 0 18px; font-size: 15px; }
+  .fb-top .fb-x { width: 44px; padding: 0; justify-content: center; font-size: 20px; letter-spacing: 0; }
+  .fb-stage { min-height: 0; display: grid; place-items: center; padding: 8px 16px; }
+  .fb-stage .stf__parent { margin: 0 auto; filter: drop-shadow(0 30px 50px rgba(0,0,0,.6)); }
+  .fb-tip { display: none; margin: 0; padding: 0 16px; text-align: center; font-size: 14px; color: var(--ink-faint); }
+  @media (max-width: 760px) and (orientation: portrait) { .fb { grid-template-rows: auto 1fr auto auto; } .fb-tip { display: block; } }
+  .fb .bar { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .fb .bar span { font-family: var(--sub); font-weight: 500; font-size: 16px; letter-spacing: .14em; color: var(--ink-dim); min-width: 80px; text-align: center; }
+  .fb .bar .btn { width: 48px; height: 48px; padding: 0; justify-content: center; font-size: 22px; letter-spacing: 0; }
   .pager { display: flex; justify-content: space-between; gap: 12px; padding: 32px 14px 0; flex-wrap: wrap; }
   .pager .btn { font-size: 15px; }
 
@@ -506,6 +531,10 @@
       <div class="gal-head"><h4>Videos</h4><span id="m-vcount"></span></div>
       <div class="videos" id="m-videos"></div>
     </div>
+    <div id="m-decks" hidden>
+      <div class="gal-head"><h4>Brand decks</h4><span id="m-dcount"></span></div>
+      <div class="decks" id="m-decklist"></div>
+    </div>
     <div class="gal-head"><h4>Gallery</h4><span id="m-count"></span></div>
     <div class="gallery" id="m-gallery"></div>
     <nav class="pager" aria-label="Other projects">
@@ -522,6 +551,21 @@
     <button class="btn" type="button" id="lb-prev" aria-label="Previous image">←</button>
     <span id="lb-n"></span>
     <button class="btn" type="button" id="lb-next" aria-label="Next image">→</button>
+  </div>
+</div>
+
+<div class="fb" id="fb" hidden role="dialog" aria-modal="true" aria-labelledby="fb-title">
+  <div class="fb-top">
+    <div class="fb-name"><b id="fb-title"></b><span id="fb-sub"></span></div>
+    <a class="btn" id="fb-pdf" href="#" download>PDF</a>
+    <button class="btn fb-x" type="button" id="fb-x" aria-label="Close deck">✕</button>
+  </div>
+  <div class="fb-stage" id="fb-stage"></div>
+  <p class="fb-tip">Swipe to turn pages · turn your phone sideways for a bigger view</p>
+  <div class="bar">
+    <button class="btn" type="button" id="fb-prev" aria-label="Previous page">←</button>
+    <span id="fb-n"></span>
+    <button class="btn" type="button" id="fb-next" aria-label="Next page">→</button>
   </div>
 </div>
 
@@ -544,9 +588,10 @@
     { code: "TMG", role: "Senior Designer", when: "2013 to 2016", title: "Thien Minh Group", a: "#c9a24a", b: "#1b3cff", slug: "thien-minh-hospitality-thien-minh-group",
       text: "Team lead who produced sketches, storyboards and concepts, managed designers and took work from concept to final execution. Brands handled: Victoria Hotels & Resorts (eight resorts, cruises, coach and express train), EMM Hotel & Resorts, L'Azalee Cruise, Lady Hau Cruise, iVivu and Hai Au Aviation." },
     { code: "FREE", role: "Alongside full-time work", when: "", title: "Freelance", a: "#fdc400", b: "#e5307f", slug: "freelancer",
-      text: "Alongside my full-time role, I take on freelance projects across many industries and deliverables, including medical, F&B, real estate, branding and other service sectors." }
+      text: "Alongside my full-time role, I take on freelance projects across many industries and deliverables, including medical, F&B, real estate, branding and other service sectors.",
+      decks: [["sr-vietnam-brand-story", "SR Vietnam", "Brand story"], ["sac-nhanh-brand-concept", "Sạc Nhanh", "Brand concept"]] }
   ];
-  var BASE_IMG = "assets/img/";
+  var BASE_IMG = "assets/img/", DECKS_DIR = "assets/decks/";
   var MANIFEST = /*__MANIFEST__*/{};
   var EMBEDDED = /*__EMBEDDED__*/false; /* true in the shareable artifact build: one image size, no history routing */
   PROJECTS.forEach(function (p) { p.imgs = MANIFEST[p.slug] || []; });
@@ -710,6 +755,20 @@
       a.className = "btn"; a.href = l[1]; a.target = "_blank"; a.rel = "noopener"; a.textContent = l[0];
       links.appendChild(a);
     });
+    var dbox = document.getElementById("m-decklist"), dks = p.decks || [];
+    dbox.innerHTML = "";
+    document.getElementById("m-decks").hidden = !dks.length;
+    document.getElementById("m-dcount").textContent = dks.length + " decks";
+    dks.forEach(function (dk, k) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "deck"; b.dataset.deck = k;
+      b.style.setProperty("--gi", (.25 + k * .08) + "s");
+      b.setAttribute("aria-label", "Open " + dk[1] + " " + dk[2]);
+      b.innerHTML = '<span class="cover"><img alt="" loading="lazy" src="' + DECKS_DIR + dk[0] + '/01.webp"></span><b></b><span></span>';
+      b.querySelector("b").textContent = dk[1];
+      b.lastChild.textContent = dk[2] + " · " + ((MANIFEST._decks || {})[dk[0]] || 0) + " pages";
+      dbox.appendChild(b);
+    });
     document.getElementById("m-count").textContent = p.imgs.length + " images";
     var gal = document.getElementById("m-gallery");
     gal.innerHTML = "";
@@ -734,7 +793,7 @@
     document.getElementById("m-close").focus({ preventScroll: true });
   }
   function closeProject() {
-    closeLb();
+    closeDeck(); closeLb();
     if (!current) return;
     current = null;
     document.querySelectorAll("#m-videos iframe, #m-videos video").forEach(function (f) { f.remove(); }); /* stop playback */
@@ -804,6 +863,61 @@
     f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
     b.appendChild(f);
   });
+  /* Flip book: page-flip (StPageFlip) loads on first use and turns one slide at a time. */
+  var fb = document.getElementById("fb"), book = null, deck = null, fbLib = null;
+  function loadFlip() {
+    if (!fbLib) fbLib = new Promise(function (ok, fail) {
+      var sc = document.createElement("script");
+      sc.src = "https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js";
+      sc.onload = ok; sc.onerror = function () { fbLib = null; fail(); };
+      document.head.appendChild(sc);
+    });
+    return fbLib;
+  }
+  function fbCount() {
+    document.getElementById("fb-n").textContent = (book.getCurrentPageIndex() + 1) + " / " + book.getPageCount();
+  }
+  function buildBook(start) {
+    var stage = document.getElementById("fb-stage");
+    if (book) { book.destroy(); book = null; }
+    stage.innerHTML = "";
+    var w = Math.min(stage.clientWidth - 32, 1280, (stage.clientHeight - 16) * 16 / 9);
+    w = Math.max(240, Math.floor(w)); var h = Math.round(w * 9 / 16);
+    var el = document.createElement("div"); el.style.width = w + "px"; stage.appendChild(el);
+    var n = (MANIFEST._decks || {})[deck[0]] || 0, urls = [];
+    for (var i = 1; i <= n; i++) urls.push(DECKS_DIR + deck[0] + "/" + (i < 10 ? "0" : "") + i + ".webp");
+    book = new St.PageFlip(el, { width: w, height: h, size: "fixed", usePortrait: true, showCover: false, maxShadowOpacity: .55, flippingTime: 750, mobileScrollSupport: false, startPage: start || 0 });
+    book.loadFromImages(urls);
+    book.on("flip", fbCount); fbCount();
+  }
+  function openDeck(dk) {
+    deck = dk; lastFocus = document.activeElement;
+    document.getElementById("fb-title").textContent = dk[1];
+    document.getElementById("fb-sub").textContent = dk[2] + " · " + ((MANIFEST._decks || {})[dk[0]] || 0) + " pages";
+    var pdf = document.getElementById("fb-pdf");
+    pdf.hidden = EMBEDDED; /* the artifact viewer blocks downloads */
+    pdf.href = DECKS_DIR + dk[0] + ".pdf"; pdf.setAttribute("download", dk[1] + " - " + dk[2] + ".pdf");
+    fb.hidden = false; document.getElementById("fb-x").focus();
+    document.getElementById("fb-n").textContent = "Loading…";
+    loadFlip().then(function () { if (deck === dk) buildBook(0); }, function () {
+      document.getElementById("fb-n").textContent = "Could not load the viewer";
+    });
+  }
+  function closeDeck() {
+    if (fb.hidden) return;
+    if (book) { book.destroy(); book = null; }
+    fb.hidden = true; deck = null;
+    if (lastFocus) lastFocus.focus({ preventScroll: true });
+  }
+  document.getElementById("m-decklist").addEventListener("click", function (e) {
+    var b = e.target.closest(".deck");
+    if (b) openDeck(current.decks[+b.dataset.deck]);
+  });
+  document.getElementById("fb-x").addEventListener("click", closeDeck);
+  document.getElementById("fb-prev").addEventListener("click", function () { if (book) book.flipPrev(); });
+  document.getElementById("fb-next").addEventListener("click", function () { if (book) book.flipNext(); });
+  addEventListener("resize", function () { if (book) buildBook(book.getCurrentPageIndex()); });
+
   function layoutGallery() {
     var gal = document.getElementById("m-gallery");
     var items = [].slice.call(gal.querySelectorAll("button")).sort(function (a, b) { return a.dataset.k - b.dataset.k; });
@@ -837,7 +951,11 @@
     if (Math.abs(dx) > 50) showLb(lbIndex + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
   });
   document.addEventListener("keydown", function (e) {
-    if (!lb.hidden) {
+    if (!fb.hidden) {
+      if (e.key === "Escape") closeDeck();
+      else if (e.key === "ArrowLeft" && book) book.flipPrev();
+      else if (e.key === "ArrowRight" && book) book.flipNext();
+    } else if (!lb.hidden) {
       if (e.key === "Escape") closeLb();
       else if (e.key === "ArrowLeft") showLb(lbIndex - 1, -1);
       else if (e.key === "ArrowRight") showLb(lbIndex + 1, 1);

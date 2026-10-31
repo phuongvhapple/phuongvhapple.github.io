@@ -40,6 +40,13 @@ COVERS = {
     "thien-minh-hospitality-thien-minh-group": "Overview.jpg",
     "freelancer": "Keppel Land_billboard_mockup_v2_03.jpg",
 }
+# Slide decks shown as flip books instead of gallery images: id -> folder under Images/.
+# Each page becomes assets/decks/<id>/NN.webp (1600x900) and the whole deck assets/decks/<id>.pdf.
+DECKS = {
+    "sr-vietnam-brand-story": "FREELANCE/_decks/SR Vietnam Brand Story",
+    "sac-nhanh-brand-concept": "FREELANCE/_decks/Sac Nhanh Brand Concept",
+}
+DECK_SIZE = (1600, 900)
 SKIP = re.compile(r"^(\.|Screenshot )")
 EXT = {".jpg", ".jpeg", ".png"}
 
@@ -64,6 +71,25 @@ def avatar():
     face = im.crop((left, 0, left + side, side))
     face.resize((192, 192), Image.LANCZOS).save(OUT / "avatar.webp", "WEBP", quality=85, method=6)
     face.resize((640, 640), Image.LANCZOS).save(OUT / "avatar-lg.webp", "WEBP", quality=84, method=6)
+
+
+def decks():
+    """Pages for the flip book viewer plus a PDF of each deck (pages fitted to 16:9)."""
+    out = {}
+    for deck, folder in DECKS.items():
+        files = sorted((f for f in (SRC / folder).iterdir() if f.suffix.lower() in EXT and not SKIP.match(f.name)),
+                       key=lambda f: natural(f.name))
+        d = ROOT / "assets" / "decks" / deck
+        d.mkdir(parents=True, exist_ok=True)
+        pages = []
+        for n, f in enumerate(files, 1):
+            im = ImageOps.fit(ImageOps.exif_transpose(Image.open(f)).convert("RGB"), DECK_SIZE, Image.LANCZOS)
+            im.save(d / f"{n:02d}.webp", "WEBP", quality=82, method=6)
+            pages.append(im)
+        pages[0].save(ROOT / "assets" / "decks" / f"{deck}.pdf", "PDF", save_all=True, append_images=pages[1:], resolution=150, quality=85)
+        out[deck] = len(pages)
+        print(f"deck {deck}: {len(pages)} pages")
+    return out
 
 
 def main():
@@ -94,6 +120,7 @@ def main():
             items.append([name, round(w / h, 3)])
         manifest[slug] = items
         print(f"{slug}: {len(items)} images")
+    manifest["_decks"] = decks()
     (OUT / "manifest.json").write_text(json.dumps(manifest, separators=(",", ":")))
 
 
