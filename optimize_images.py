@@ -1,6 +1,6 @@
 """Compress the originals in Images/ into web-ready WebP files under assets/img/.
 
-Needs Pillow (pip install Pillow). Writes, per project:
+Run with the project venv: .venv/bin/python optimize_images.py (Pillow, PyMuPDF; see requirements.txt). Writes, per project:
   assets/img/<slug>/NN.webp         full view, longest side 1600px
   assets/img/<slug>/thumbs/NN.webp  grid/gallery thumbnail, longest side 720px
 plus assets/img/avatar.webp and avatar-lg.webp (portrait for the nav and the intro), and assets/img/manifest.json, which build.py inlines into index.html.
@@ -120,11 +120,14 @@ def decks():
         for n, im in enumerate(sources, 1):
             im.save(d / f"{n:02d}.webp", "WEBP", quality=82, method=6)
             pages.append(im)
+        # a rebuilt PDF differs byte for byte (it stamps the time), so only write it when the source is newer
         pdf = ROOT / "assets" / "decks" / f"{deck}.pdf"
-        if src.suffix.lower() == ".pdf":
-            shutil.copyfile(src, pdf)
-        else:
-            pages[0].save(pdf, "PDF", save_all=True, append_images=pages[1:], resolution=150, quality=85)
+        newest = src.stat().st_mtime if src.is_file() else max(f.stat().st_mtime for f in files)
+        if not pdf.exists() or pdf.stat().st_mtime < newest:
+            if src.suffix.lower() == ".pdf":
+                shutil.copyfile(src, pdf)
+            else:
+                pages[0].save(pdf, "PDF", save_all=True, append_images=pages[1:], resolution=150, quality=85)
         out[deck] = [len(pages), round(size[0] / size[1], 4), kind]
         print(f"deck {deck}: {len(pages)} pages")
     return out
@@ -156,6 +159,11 @@ def main():
             save(im, OUT / slug / "thumbs" / name, THUMB)
             w, h = im.size
             items.append([name, round(w / h, 3)])
+        # drop pages left over from a longer gallery (e.g. after images were removed)
+        keep = {name for name, _ in items}
+        for old in list((OUT / slug).glob("*.webp")) + list((OUT / slug / "thumbs").glob("*.webp")):
+            if old.name not in keep:
+                old.unlink()
         manifest[slug] = items
         print(f"{slug}: {len(items)} images")
     manifest["_decks"] = decks()
