@@ -89,7 +89,7 @@ Nội dung, dự án, gallery, video và flip book đều lấy từ `portfolio.
 
 - Layout, màu và hiệu ứng riêng của v2 nằm trong `v2.src.html`. Không sửa `v2/index.html` bằng tay.
 - Tiêu đề ngắn của 4 ý trong Professional Summary: thuộc tính `data-titles` trong `v2.src.html`.
-- Đầu trang: khối 3D chrome lỏng phản chiếu ánh neon trên lưới neon (vẽ bằng three.js r128 từ cdnjs, đoạn `hero orb` trong `v2.src.html`). Khi cuộn, camera lao vào khối. Máy không hỗ trợ WebGL sẽ thấy khối màu CSS thay thế.
+- Đầu trang: bộ não 3D trong suốt, phát sáng, với mạng neuron và các vòng elip có neuron chạy quanh (vẽ bằng three.js r128 từ cdnjs, đoạn `hero: a glowing, see-through brain` trong `v2.src.html`). Khi cuộn, camera đi vào trong bộ não. Máy không hỗ trợ WebGL sẽ thấy khối màu CSS thay thế.
 - Thư viện hiệu ứng: GSAP 3.12.5 + ScrollTrigger và three.js r128 (cdnjs), Lenis 1.1.13 (jsDelivr). Nếu không tải được, trang vẫn hiện đủ nội dung, chỉ không có hiệu ứng.
 
 ## Những gì build tự làm
