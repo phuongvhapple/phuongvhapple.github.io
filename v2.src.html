@@ -67,7 +67,7 @@
   .x-grain { position: absolute; inset: 0; pointer-events: none; opacity: .12; mix-blend-mode: multiply; background: repeating-linear-gradient(180deg, rgba(0,0,0,0) 0 2px, rgba(0,0,10,.55) 2px 3px); }
   .x-grain::after { content: ""; position: absolute; left: 0; right: 0; height: 18vh; top: -20vh; background: linear-gradient(transparent, rgba(160,140,255,.07), transparent); mix-blend-mode: screen; animation: sweep 7s linear infinite; }
   @keyframes sweep { to { transform: translateY(140vh); } }
-  .x-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(3,3,26,.5), rgba(3,3,26,0) 48%), linear-gradient(180deg, rgba(3,3,26,.35), transparent 16%, transparent 86%, var(--bg)); }
+  .x-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(3,3,26,.42), rgba(3,3,26,0) 45%), linear-gradient(180deg, rgba(3,3,26,.25), transparent 14%, transparent 88%, var(--bg)); }
   .x-hstick::before { content: ""; position: absolute; inset: 0; background: radial-gradient(55% 60% at 68% 45%, rgba(185,140,255,.28), transparent 70%), radial-gradient(40% 45% at 75% 60%, rgba(255,95,168,.18), transparent 70%), radial-gradient(45% 50% at 60% 30%, rgba(79,134,255,.2), transparent 70%); }
   .x-veil { position: absolute; inset: 0; pointer-events: none; background: var(--bg); opacity: 0; }
   .x-copy { padding-bottom: clamp(56px, 11vh, 120px); }
@@ -321,10 +321,12 @@
 /*@V1_DATA*/
 /*@V1_PROJECT_VIEW*/
 
-  /* ===== hero: a spiral galaxy in the brand colours =====
+  /* ===== hero: a spiral galaxy in the brand colours, in an abstract space =====
      Tens of thousands of points laid out on spiral arms (a warm yellow core, pink and violet
-     arms, blue edges) that turn slowly, faster near the centre, with soft nebula clouds,
-     twinkling stars, and small lights travelling the elliptical orbits around it.
+     arms, blue edges) that turn slowly, faster near the centre, with soft nebula clouds and
+     small lights travelling the elliptical orbits; a star burst on the core and light streaks
+     rushing out of it; a curved lattice of tiny lights with pulses running along it; behind,
+     a drifting colour nebula swirling like a tunnel of light; specks of colour in front.
      Scroll progress (0 to 1 over the hero) flies the camera into the core. Without WebGL the
      page shows a CSS version of the shape instead. */
   (function () {
@@ -338,22 +340,44 @@
     var renderer = new T.WebGLRenderer({ canvas: canvas, context: gl, antialias: true, alpha: false });
     renderer.setClearColor(0x03031a, 1);
     renderer.autoClear = false;
+    var pix = { value: 400 }, uTime = { value: 0 }, uForm = { value: 0 };
     var bgRes = { value: new T.Vector2(1, 1) }, bgShift = { value: new T.Vector2(0, 0) };
     var bgScene = new T.Scene(), bgCam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     bgScene.add(new T.Mesh(new T.PlaneGeometry(2, 2), new T.ShaderMaterial({
-      uniforms: { uRes: bgRes, uShift: bgShift }, depthWrite: false, depthTest: false,
+      uniforms: { uRes: bgRes, uShift: bgShift, uTime: uTime }, depthWrite: false, depthTest: false,
       vertexShader: "void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }",
       fragmentShader: [
-        "uniform vec2 uRes, uShift;",
+        "uniform vec2 uRes, uShift; uniform float uTime;",
+        "float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+        "float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);",
+        "  return mix(mix(h(i), h(i + vec2(1.0, 0.0)), f.x), mix(h(i + vec2(0.0, 1.0)), h(i + vec2(1.0, 1.0)), f.x), f.y); }",
+        "float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int k = 0; k < 5; k++) { v += a * n(p); p = p * 2.03 + 11.7; a *= 0.5; } return v; }",
         "float g(vec2 uv, vec2 c, vec2 r){ vec2 d = (uv - c) / r; return exp(-dot(d, d) * 2.2); }",
         "void main(){",
         "  vec2 uv = gl_FragCoord.xy / uRes; uv.y = 1.0 - uv.y;",
-        "  vec3 col = vec3(0.012, 0.012, 0.102);",
-        "  col += vec3(0.73, 0.55, 1.0) * 0.26 * g(uv, vec2(0.66, 0.45) + uShift, vec2(0.42, 0.5));",
-        "  col += vec3(1.0, 0.37, 0.66) * 0.20 * g(uv, vec2(0.76, 0.66) + uShift, vec2(0.3, 0.35));",
-        "  col += vec3(0.31, 0.53, 1.0) * 0.22 * g(uv, vec2(0.58, 0.26) + uShift, vec2(0.35, 0.35));",
-        "  col += vec3(0.9, 0.19, 0.5) * 0.16 * g(uv, vec2(0.0, 0.05), vec2(0.45, 0.45));",
-        "  col += vec3(0.05, 0.24, 1.0) * 0.14 * g(uv, vec2(1.0, 0.9), vec2(0.4, 0.4));",
+        "  vec2 q = vec2(uv.x * uRes.x / uRes.y, uv.y);",
+        "  float t = uTime * 0.012;",
+        "  float c1 = fbm(q * 2.2 + vec2(t, -t * 0.6));",
+        "  float c2 = fbm(q * 3.4 - vec2(t * 0.7, t) + c1 * 1.4);",
+        "  vec3 col = mix(vec3(0.02, 0.02, 0.12), vec3(0.06, 0.04, 0.2), uv.y);",
+        /* nebula: violet base, pink and blue veils, a touch of teal and warm gold */
+        "  col += vec3(0.55, 0.32, 0.95) * pow(c1, 2.4) * 0.38;",
+        "  col += vec3(1.0, 0.34, 0.62) * smoothstep(0.45, 0.85, c2) * 0.3 * (0.35 + g(uv, vec2(0.78, 0.65) + uShift, vec2(0.55, 0.6)));",
+        "  col += vec3(0.3, 0.55, 1.0) * smoothstep(0.5, 0.9, c1 * c2 * 1.8) * 0.34;",
+        "  col += vec3(0.2, 0.85, 0.9) * smoothstep(0.62, 0.95, c2) * 0.16 * g(uv, vec2(0.95, 0.2), vec2(0.5, 0.5));",
+        "  col += vec3(1.0, 0.78, 0.3) * 0.12 * g(uv, vec2(0.66, 0.45) + uShift, vec2(0.18, 0.2));",
+        "  col += vec3(0.73, 0.55, 1.0) * 0.14 * g(uv, vec2(0.66, 0.45) + uShift, vec2(0.45, 0.5));",
+        "  col += vec3(0.9, 0.19, 0.5) * 0.18 * g(uv, vec2(0.0, 0.05), vec2(0.5, 0.5));",
+        /* soft rays swirling round the galaxy, like a tunnel of light */
+        "  vec2 cc = (uv - (vec2(0.66, 0.45) + uShift)) * vec2(uRes.x / uRes.y, 1.0);",
+        "  float ang = atan(cc.y, cc.x), rad = length(cc);",
+        "  float rays = pow(n(vec2(ang * 7.0 + rad * 2.0 - uTime * 0.05, rad * 3.0 - uTime * 0.25)), 3.0);",
+        "  vec3 rc = mix(vec3(0.35, 0.45, 1.0), vec3(0.2, 0.8, 0.85), smoothstep(-1.0, 1.0, sin(ang * 2.0 + uTime * 0.05)));",
+        "  rc = mix(rc, vec3(0.9, 0.35, 0.85), smoothstep(0.2, 0.9, n(vec2(ang * 2.0, 3.0))));",
+        "  col += rc * rays * smoothstep(0.12, 0.45, rad) * smoothstep(1.4, 0.5, rad) * 0.34;",
+        /* fine background stars */
+        "  vec2 sg = floor(gl_FragCoord.xy / 3.0); float st = h(sg);",
+        "  col += vec3(1.0, 0.95, 1.0) * step(0.9975, st) * (0.55 + 0.45 * sin(uTime * (1.0 + st * 3.0) + st * 90.0));",
         "  gl_FragColor = vec4(col, 1.0); }"
       ].join("\n")
     })));
@@ -361,7 +385,6 @@
     var camera = new T.PerspectiveCamera(34, 1, 0.1, 100);
     camera.position.set(0, 0, 7);
     var phone = matchMedia("(max-width: 760px)").matches;
-    var pix = { value: 400 }, uTime = { value: 0 }, uForm = { value: 0 };
 
     function glowTex(stops) {
       var c = document.createElement("canvas"); c.width = c.height = 128;
@@ -460,8 +483,79 @@
     var sGeo = new T.BufferGeometry(); sGeo.setAttribute("position", new T.BufferAttribute(sPos, 3));
     var stars = new T.Points(sGeo, new T.PointsMaterial({ size: .04, map: dot, color: "#ffeef8", transparent: true, opacity: .8, blending: T.AdditiveBlending, depthWrite: false }));
 
+    /* a star-shaped burst of light on the core: long vertical and shorter cross rays */
+    var flare = new T.Group();
+    function rayTex() {
+      var c = document.createElement("canvas"); c.width = 512; c.height = 32;
+      var x = c.getContext("2d"), gr = x.createLinearGradient(0, 0, 512, 0);
+      gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(.5, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+      var gv = x.createLinearGradient(0, 0, 0, 32);
+      gv.addColorStop(0, "rgba(0,0,0,0)"); gv.addColorStop(.5, "rgba(0,0,0,1)"); gv.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = gr; x.fillRect(0, 0, 512, 32);
+      x.globalCompositeOperation = "destination-in"; x.fillStyle = gv; x.fillRect(0, 0, 512, 32);
+      return new T.CanvasTexture(c);
+    }
+    var ray = rayTex(), burst = [];
+    [[0, 3.2, .09, "#fff4fb"], [Math.PI / 2, 1.9, .07, "#ffd7ec"], [Math.PI / 4, 1.1, .045, "#cfe8ff"], [-Math.PI / 4, 1.1, .045, "#cfe8ff"]].forEach(function (b) {
+      var sp = new T.Sprite(new T.SpriteMaterial({ map: ray, color: b[3], blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
+      sp.material.rotation = b[0] + Math.PI / 2; sp.scale.set(b[1], b[2] * 4, 1); sp.userData = { r: b[0], l: b[1] };
+      flare.add(sp); burst.push(sp);
+    });
+
+    /* light streaks rushing out from the core, like a jump to light speed */
+    var streaks = [];
+    for (i = 0; i < (phone ? 26 : 48); i++) {
+      var stc = ["#ffffff", "#ff8cc4", "#9fd8ff", "#c9a8ff", "#7fe3ff"][i % 5];
+      var ss = new T.Sprite(new T.SpriteMaterial({ map: ray, color: stc, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
+      ss.userData = { a: Math.random() * Math.PI * 2, d: Math.random(), v: .18 + Math.random() * .35, l: .4 + Math.random() * 1.1 };
+      flare.add(ss); streaks.push(ss);
+    }
+
+    /* a curved lattice of tiny lights, like the fabric of space, with pulses running along it */
+    var lat = [], STEP = .065, SPAN = 9, GAP = .85;
+    for (var gx = -SPAN; gx <= SPAN + .001; gx += GAP)
+      for (var gy = -SPAN; gy <= SPAN; gy += STEP) { lat.push(gx, gy, 0); lat.push(gy, gx, 1); }
+    var latPos = new Float32Array(lat.length);
+    for (i = 0; i < lat.length; i += 3) { latPos[i] = lat[i]; latPos[i + 1] = lat[i + 1]; latPos[i + 2] = lat[i + 2]; }
+    var latGeo = new T.BufferGeometry(); latGeo.setAttribute("position", new T.BufferAttribute(latPos, 3));
+    var lattice = new T.Points(latGeo, new T.ShaderMaterial({
+      uniforms: { uTime: uTime, uForm: uForm, uPix: pix, uProg: { value: 0 } },
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+      vertexShader: [
+        "uniform float uTime, uForm, uPix, uProg; varying vec3 vCol;",
+        "float h(float x){ return fract(sin(x * 91.7) * 43758.5); }",
+        "void main(){",
+        "  vec2 g = position.xy; float fam = position.z;",
+        /* bend the sheet into a shallow bowl so the lines curve away like warped space */
+        "  float rr = dot(g, g);",
+        "  vec3 p = vec3(g.x, g.y, -0.055 * rr + 1.2);",
+        "  vec4 mv = modelViewMatrix * vec4(p, 1.0);",
+        "  float along = fam < 0.5 ? g.y : g.x, line = fam < 0.5 ? g.x : g.y;",
+        "  float pulse = pow(0.5 + 0.5 * sin(along * 1.6 - uTime * 1.8 + h(line) * 30.0), 14.0);",
+        "  float tw = 0.55 + 0.45 * sin(uTime * 2.0 + h(along * 7.0 + line) * 40.0);",
+        "  float fade = smoothstep(9.0, 3.5, sqrt(rr)) * uForm;",
+        "  vCol = mix(vec3(0.55, 0.75, 1.0), vec3(1.0, 0.7, 0.95), pulse) * (0.22 * tw + pulse * 0.9) * fade;",
+        "  gl_PointSize = (0.022 + pulse * 0.03) * uPix / -mv.z;",
+        "  gl_Position = projectionMatrix * mv; }"
+      ].join("\n"),
+      fragmentShader: "varying vec3 vCol; void main(){ float d = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vCol * smoothstep(0.5, 0.0, d), 1.0); }"
+    }));
+    lattice.rotation.set(-.55, .35, .62);
+    scene.add(lattice);
+
+    /* out-of-focus specks of light drifting in front, for depth */
+    var bokeh = new T.Group(), bokehCols = ["rgba(255,95,168,.5)", "rgba(185,140,255,.5)", "rgba(127,227,255,.5)", "rgba(253,196,0,.4)", "rgba(80,230,200,.45)", "rgba(255,80,90,.4)"];
+    for (i = 0; i < (phone ? 14 : 30); i++) {
+      var bs = new T.Sprite(new T.SpriteMaterial({ map: glowTex([[0, bokehCols[i % 6]], [.55, bokehCols[i % 6].replace(/[\d.]+\)$/, ".25)")], [.7, "rgba(255,255,255,0)"], [1, "rgba(255,255,255,0)"]]), blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
+      var bz = 1.5 + Math.random() * 3, bsz = .25 + Math.random() * .6;
+      bs.position.set((Math.random() - .5) * 9, (Math.random() - .5) * 5, bz); bs.scale.set(bsz, bsz, 1);
+      bs.userData = { o: .14 + Math.random() * .28, p: Math.random() * 6, y: bs.position.y };
+      bokeh.add(bs);
+    }
+    scene.add(bokeh);
+
     var group = new T.Group();
-    group.add(disk); group.add(core); group.add(rings);
+    group.add(disk); group.add(core); group.add(rings); group.add(flare);
     scene.add(group); scene.add(stars);
 
     var form = { v: 0 }, prog = 0, mx = 0, my = 0, rx = 0, ry = 0, base = { x: 0, y: 0, s: 1 };
@@ -518,6 +612,34 @@
       camera.position.z = 7 - e * 5.8;
       camera.position.x = mx * .3; camera.position.y = -my * .25;
       camera.lookAt(group.position.x * .5, group.position.y * .5, 0);
+      /* star burst on the core breathes and turns a little */
+      burst.forEach(function (b, k) {
+        var pul = .85 + .15 * Math.sin(t * 1.3 + k);
+        b.material.opacity = f * pul * (k < 2 ? .9 : .55);
+        b.material.rotation = b.userData.r + Math.PI / 2 + Math.sin(t * .2) * .06;
+        b.scale.x = b.userData.l * (1 + e * 1.5) * pul;
+      });
+      /* streaks run outward and fade, faster as you scroll in */
+      streaks.forEach(function (st) {
+        var u = st.userData;
+        u.d += dt * u.v * (1 + e * 4);
+        if (u.d > 1) { u.d = 0; u.a = Math.random() * Math.PI * 2; }
+        var dist = .35 + u.d * 3.2;
+        st.position.set(Math.cos(u.a) * dist, Math.sin(u.a) * dist, .2);
+        st.material.rotation = u.a;
+        st.scale.set(u.l * (.4 + u.d) * (1 + e * 2), .05, 1);
+        st.material.opacity = f * Math.sin(u.d * Math.PI) * (.4 + e * .5);
+      });
+      lattice.material.uniforms.uProg.value = e;
+      lattice.rotation.z = .62 + t * .006 + rx * .3; lattice.rotation.y = .35 + ry * .4;
+      lattice.position.z = e * 3;
+      bokeh.children.forEach(function (b) {
+        var u = b.userData;
+        b.position.y = u.y + Math.sin(t * .2 + u.p) * .25;
+        b.position.x += Math.sin(t * .1 + u.p) * .0008;
+        b.material.opacity = u.o * f * (.75 + .25 * Math.sin(t * .5 + u.p)) * (1 - e);
+      });
+      bokeh.position.set(-mx * .6, my * .4, 0);
       bgShift.value.set(phone ? -.16 : 0, phone ? -.18 : 0);
       renderer.clear(); renderer.render(bgScene, bgCam); renderer.render(scene, camera);
     }
