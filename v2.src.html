@@ -53,7 +53,7 @@
   .x-mfoot { max-width: 1280px; width: 100%; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-family: var(--sub); font-weight: 500; font-size: 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-dim); border-top: 1px solid var(--line); padding-top: 18px; }
 
   /* hero: full-bleed project images, name and lines bottom left */
-  /* hero: a glowing see-through brain in a neural network; the camera dives into it as you scroll */
+  /* hero: a spiral galaxy in the brand colours; the camera flies into it as you scroll */
   .x-hero { position: relative; height: 210vh; }
   .x-hstick { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; }
   #x-orb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -321,114 +321,48 @@
 /*@V1_DATA*/
 /*@V1_PROJECT_VIEW*/
 
-  /* ===== hero: a brain drawn in fine points of light, inside a neural network =====
-     Two hemispheres and a cerebellum, each a sphere shaped into the lobe and folded into
-     gyri by noise, drawn as light glass (bright rim, soft see-through body). Nodes on the
-     brain link up into a network with pulses running along it; neurons ride the elliptical
-     rings and reach back to the brain. Scroll progress (0 to 1 over the hero) moves the camera
-     into the brain. Without WebGL the page shows a CSS version of the shape instead. */
+  /* ===== hero: a spiral galaxy in the brand colours =====
+     Tens of thousands of points laid out on spiral arms (a warm yellow core, pink and violet
+     arms, blue edges) that turn slowly, faster near the centre, with soft nebula clouds,
+     twinkling stars, and small lights travelling the elliptical orbits around it.
+     Scroll progress (0 to 1 over the hero) flies the camera into the core. Without WebGL the
+     page shows a CSS version of the shape instead. */
   (function () {
     var canvas = document.getElementById("x-orb");
     var T = window.THREE, gl = null;
     try { gl = T && (canvas.getContext("webgl2") || canvas.getContext("webgl")); } catch (e) {}
     if (!T || !gl) { document.documentElement.classList.add("no-gl"); return; }
 
-    var renderer = new T.WebGLRenderer({ canvas: canvas, context: gl, antialias: true, alpha: true });
-    renderer.setClearColor(0x000000, 0);
+    /* the canvas paints its own night-sky backdrop (navy with soft colour glows), so the
+       additive light of the galaxy always sits on it cleanly */
+    var renderer = new T.WebGLRenderer({ canvas: canvas, context: gl, antialias: true, alpha: false });
+    renderer.setClearColor(0x03031a, 1);
+    renderer.autoClear = false;
+    var bgRes = { value: new T.Vector2(1, 1) }, bgShift = { value: new T.Vector2(0, 0) };
+    var bgScene = new T.Scene(), bgCam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    bgScene.add(new T.Mesh(new T.PlaneGeometry(2, 2), new T.ShaderMaterial({
+      uniforms: { uRes: bgRes, uShift: bgShift }, depthWrite: false, depthTest: false,
+      vertexShader: "void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }",
+      fragmentShader: [
+        "uniform vec2 uRes, uShift;",
+        "float g(vec2 uv, vec2 c, vec2 r){ vec2 d = (uv - c) / r; return exp(-dot(d, d) * 2.2); }",
+        "void main(){",
+        "  vec2 uv = gl_FragCoord.xy / uRes; uv.y = 1.0 - uv.y;",
+        "  vec3 col = vec3(0.012, 0.012, 0.102);",
+        "  col += vec3(0.73, 0.55, 1.0) * 0.26 * g(uv, vec2(0.66, 0.45) + uShift, vec2(0.42, 0.5));",
+        "  col += vec3(1.0, 0.37, 0.66) * 0.20 * g(uv, vec2(0.76, 0.66) + uShift, vec2(0.3, 0.35));",
+        "  col += vec3(0.31, 0.53, 1.0) * 0.22 * g(uv, vec2(0.58, 0.26) + uShift, vec2(0.35, 0.35));",
+        "  col += vec3(0.9, 0.19, 0.5) * 0.16 * g(uv, vec2(0.0, 0.05), vec2(0.45, 0.45));",
+        "  col += vec3(0.05, 0.24, 1.0) * 0.14 * g(uv, vec2(1.0, 0.9), vec2(0.4, 0.4));",
+        "  gl_FragColor = vec4(col, 1.0); }"
+      ].join("\n")
+    })));
     var scene = new T.Scene();
     var camera = new T.PerspectiveCamera(34, 1, 0.1, 100);
     camera.position.set(0, 0, 7);
     var phone = matchMedia("(max-width: 760px)").matches;
+    var pix = { value: 400 }, uTime = { value: 0 }, uForm = { value: 0 };
 
-    var noise = [
-      "vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}",
-      "vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}",
-      "vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}",
-      "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
-      "float snoise(vec3 v){const vec2 C=vec2(1.0/6.0,1.0/3.0);const vec4 D=vec4(0.0,0.5,1.0,2.0);",
-      "vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.0-g;",
-      "vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;",
-      "i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
-      "float n_=0.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.0*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.0*x_);",
-      "vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.0-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);",
-      "vec4 s0=floor(b0)*2.0+1.0;vec4 s1=floor(b1)*2.0+1.0;vec4 sh=-step(h,vec4(0.0));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
-      "vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);",
-      "vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
-      "vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);m=m*m;",
-      "return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}"
-    ].join("\n");
-
-    var C = {
-      pink: new T.Color("#ff5fa8"), lilac: new T.Color("#b98cff"), blue: new T.Color("#4f86ff"),
-      cyan: new T.Color("#7fe3ff"), yellow: new T.Color("#fdc400"), white: new T.Color("#ffffff")
-    };
-    var shared = { uTime: { value: 0 }, uForm: { value: 0 } };
-
-    /* one lobe as a cloud of fine dots: points scattered over a sphere squeezed to the lobe's
-       shape (flatter underneath, a temporal bulge, soft folds). The crests of the folds glow a
-       little brighter, which draws the gyri as light lines without spelling out every detail. */
-    var pix = { value: 400 };
-    function lobe(center, scale, bulge, fold, count, gain) {
-      var pos = new Float32Array(count * 3), rk = new Float32Array(count * 2);
-      for (var i = 0; i < count; i++) {
-        var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = Math.sqrt(1 - u * u);
-        pos[i * 3] = r * Math.cos(th); pos[i * 3 + 1] = u; pos[i * 3 + 2] = r * Math.sin(th);
-        rk[i * 2] = Math.random();                                         /* per-dot variation */
-        rk[i * 2 + 1] = Math.random() < .82 ? 1 : .55 + Math.random() * .4; /* most on the surface, some inside */
-      }
-      var g = new T.BufferGeometry();
-      g.setAttribute("position", new T.BufferAttribute(pos, 3));
-      g.setAttribute("aRK", new T.BufferAttribute(rk, 2));
-      var U = {
-        uTime: shared.uTime, uForm: shared.uForm, uPix: pix,
-        uC: { value: new T.Vector3().fromArray(center) }, uS: { value: new T.Vector3().fromArray(scale) },
-        uB: { value: new T.Vector4().fromArray(bulge) }, uFold: { value: fold }, uGain: { value: gain || 1 },
-        uPink: { value: C.pink }, uLilac: { value: C.lilac }, uBlue: { value: C.blue }, uCyan: { value: C.cyan }, uYellow: { value: C.yellow }
-      };
-      var m = new T.ShaderMaterial({
-        uniforms: U, transparent: true, depthWrite: false, blending: T.AdditiveBlending,
-        vertexShader: [
-          "uniform float uTime, uForm, uFold, uPix, uGain; uniform vec3 uC, uS; uniform vec4 uB;",
-          "uniform vec3 uPink, uLilac, uBlue, uCyan, uYellow;",
-          "attribute vec2 aRK; varying vec3 vCol;",
-          noise,
-          "float ridge(vec3 d){ float n = 1.0 - abs(snoise(d * uFold + vec3(0.0, 0.0, uTime * 0.015))); return n * n; }",
-          "void main(){",
-          "  vec3 d = normalize(position);",
-          "  vec3 p = d * uS; if (p.y < 0.0) p.y *= 0.78;",
-          "  if (p.z > 0.0 && p.y < 0.0) p.y *= 0.85;",
-          "  p += d * uB.w * exp(-dot(d - uB.xyz, d - uB.xyz) * 3.5);",
-          "  float r = ridge(d);",
-          "  p += d * r * 0.045;",
-          "  vec3 q = uC + p * aRK.y;",
-          "  vec4 mv = modelViewMatrix * vec4(q, 1.0);",
-          /* colour runs from pink at the front to blue and cyan at the back and top */
-          "  float fb = smoothstep(-0.9, 0.9, q.z);",
-          "  vec3 c = mix(uBlue, uLilac, smoothstep(0.1, 0.55, fb));",
-          "  c = mix(c, uPink, smoothstep(0.55, 0.95, fb));",
-          "  c = mix(c, uCyan, smoothstep(0.35, 0.8, q.y) * (1.0 - fb) * 0.8);",
-          "  float crest = smoothstep(0.72, 0.93, r) * step(0.99, aRK.y);",
-          "  float tw = 0.65 + 0.35 * sin(uTime * (0.8 + aRK.x * 2.0) + aRK.x * 60.0);",
-          "  vec3 hot = mix(vec3(1.0, 0.25, 0.55), vec3(0.45, 0.75, 1.0), smoothstep(0.3, 0.8, 1.0 - fb));",
-          "  vCol = (c * (aRK.y < 0.99 ? 0.26 : 0.42) + hot * crest * 1.15) * tw * uForm * uGain;",
-          "  gl_PointSize = (0.009 + 0.010 * aRK.x + crest * 0.014) * uPix / -mv.z;",
-          "  gl_Position = projectionMatrix * mv; }"
-        ].join("\n"),
-        fragmentShader: [
-          "varying vec3 vCol;",
-          "void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(vCol * a, 1.0); }"
-        ].join("\n")
-      });
-      return new T.Points(g, m);
-    }
-    var D = phone ? 9000 : 18000;
-    /* the long axis runs front (+z) to back; hemispheres sit either side of x = 0 */
-    var brain = new T.Group();
-    brain.add(lobe([-.17, .05, 0], [.6, .76, 1.12], [-.6, -.6, .3, .16], 2.1, D));
-    brain.add(lobe([.17, .05, 0], [.6, .76, 1.12], [.6, -.6, .3, .16], 2.1, D));
-    brain.add(lobe([0, -.56, -.74], [.48, .24, .3], [0, 0, 0, 0], 4.0, Math.round(D * .18), .6));
-
-    /* points of light inside, so the glass feels alive */
     function glowTex(stops) {
       var c = document.createElement("canvas"); c.width = c.height = 128;
       var x = c.getContext("2d"), g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -437,75 +371,97 @@
       return new T.CanvasTexture(c);
     }
     var dot = glowTex([[0, "rgba(255,255,255,1)"], [.2, "rgba(255,255,255,.85)"], [.5, "rgba(255,255,255,.2)"], [1, "rgba(255,255,255,0)"]]);
-    function onBrain(rnd, out) {
-      /* a point on (or just inside) the brain surface, without the folds */
-      var side = rnd() < .5 ? -1 : 1, th = rnd() * Math.PI * 2, ph = Math.acos(2 * rnd() - 1), k = out;
-      var x = Math.sin(ph) * Math.cos(th), y = Math.cos(ph), z = Math.sin(ph) * Math.sin(th);
-      if (x * side < -.2) x = -x;
-      var py = y * .74; if (py < 0) py *= .78;
-      return new T.Vector3(side * .33 + x * .6 * k, .05 + py * k, z * 1.08 * k);
+
+    /* the galaxy */
+    var N = phone ? 22000 : 48000, ARMS = 4, R = 2.6;
+    var aPos = new Float32Array(N * 3), aCol = new Float32Array(N * 3), aRnd = new Float32Array(N);
+    var cCore = new T.Color("#fff1c2"), cIn = new T.Color("#fdc400"), cMid = new T.Color("#ff5fa8"), cArm = new T.Color("#b98cff"), cOut = new T.Color("#4f86ff");
+    var tmp = new T.Color();
+    for (var i = 0; i < N; i++) {
+      var bulge = Math.random() < .14;
+      var r = bulge ? Math.pow(Math.random(), 2) * .55 : .12 + Math.pow(Math.random(), 1.75) * (R - .12);
+      var arm = (i % ARMS) / ARMS * Math.PI * 2;
+      var spread = Math.pow(Math.random(), 2.3) * (Math.random() < .5 ? 1 : -1) * (.55 + r * .3);
+      var ang = bulge ? Math.random() * Math.PI * 2 : arm + r * 1.25 + spread;
+      var h = (Math.random() - .5) * (bulge ? .45 : .2) * Math.exp(-r * .5) + (Math.random() - .5) * .05;
+      aPos[i * 3] = r; aPos[i * 3 + 1] = ang; aPos[i * 3 + 2] = h;
+      var k = r / R;
+      if (k < .08) tmp.copy(cCore).lerp(cIn, k / .08);
+      else if (k < .3) tmp.copy(cIn).lerp(cMid, (k - .08) / .22);
+      else if (k < .6) tmp.copy(cMid).lerp(cArm, (k - .3) / .3);
+      else tmp.copy(cArm).lerp(cOut, Math.min(1, (k - .6) / .4));
+      tmp.toArray(aCol, i * 3);
+      aRnd[i] = Math.random();
     }
-    var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    var gGeo = new T.BufferGeometry();
+    gGeo.setAttribute("position", new T.BufferAttribute(aPos, 3));
+    gGeo.setAttribute("color", new T.BufferAttribute(aCol, 3));
+    gGeo.setAttribute("aRnd", new T.BufferAttribute(aRnd, 1));
+    var galaxy = new T.Points(gGeo, new T.ShaderMaterial({
+      uniforms: { uTime: uTime, uForm: uForm, uPix: pix },
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending, vertexColors: true,
+      vertexShader: [
+        "uniform float uTime, uForm, uPix; attribute float aRnd; varying vec3 vCol;",
+        "void main(){",
+        "  float r = position.x;",
+        /* inner stars turn faster than outer ones, so the arms slowly wind */
+        "  float a = position.y + uTime * 0.11 / (0.45 + r * 0.6);",
+        "  float grow = smoothstep(0.0, 1.0, uForm * 1.25 - r * 0.12);",
+        "  vec3 p = vec3(cos(a) * r, position.z, sin(a) * r) * (0.55 + 0.45 * grow);",
+        "  vec4 mv = modelViewMatrix * vec4(p, 1.0);",
+        "  float tw = 0.7 + 0.3 * sin(uTime * (1.0 + aRnd * 2.5) + aRnd * 50.0);",
+        "  vCol = color * tw * grow * (r < 0.25 ? 0.95 : 1.0);",
+        "  gl_PointSize = (0.010 + 0.016 * aRnd * aRnd + (r < 0.3 ? 0.012 : 0.0)) * uPix / -mv.z;",
+        "  gl_Position = projectionMatrix * mv; }"
+      ].join("\n"),
+      fragmentShader: "varying vec3 vCol; void main(){ float d = length(gl_PointCoord - 0.5); vec3 c = vCol * smoothstep(0.5, 0.0, d); gl_FragColor = vec4(c, min(1.0, max(c.r, max(c.g, c.b)))); }"
+    }));
 
-    /* the network on the brain: nodes linked to their nearest neighbours */
-    var nodes = [], NN = phone ? 70 : 120;
-    for (var i = 0; i < NN; i++) nodes.push(onBrain(rnd, 1.04));
-    var edges = [], seen = {};
-    nodes.forEach(function (a, i) {
-      nodes.map(function (b, j) { return [a.distanceToSquared(b), j]; })
-        .sort(function (p, q) { return p[0] - q[0]; }).slice(1, 4)
-        .forEach(function (q) { var key = Math.min(i, q[1]) + "-" + Math.max(i, q[1]); if (!seen[key]) { seen[key] = 1; edges.push([i, q[1]]); } });
-    });
-    var ePos = new Float32Array(edges.length * 6);
-    edges.forEach(function (e, k) { nodes[e[0]].toArray(ePos, k * 6); nodes[e[1]].toArray(ePos, k * 6 + 3); });
-    var eGeo = new T.BufferGeometry(); eGeo.setAttribute("position", new T.BufferAttribute(ePos, 3));
-    var netLines = new T.LineSegments(eGeo, new T.LineBasicMaterial({ color: C.cyan, transparent: true, opacity: .5, blending: T.AdditiveBlending, depthWrite: false }));
-    var nPos = new Float32Array(NN * 3); nodes.forEach(function (n, i) { n.toArray(nPos, i * 3); });
-    var nGeo = new T.BufferGeometry(); nGeo.setAttribute("position", new T.BufferAttribute(nPos, 3));
-    var netNodes = new T.Points(nGeo, new T.PointsMaterial({ size: .09, map: dot, color: C.white, transparent: true, opacity: .9, blending: T.AdditiveBlending, depthWrite: false }));
-    brain.add(netLines); brain.add(netNodes);
+    /* soft light: a warm core and drifting clouds of colour along the arms */
+    var disk = new T.Group();
+    var core = new T.Sprite(new T.SpriteMaterial({ map: glowTex([[0, "rgba(255,246,214,1)"], [.15, "rgba(253,196,0,.6)"], [.45, "rgba(255,95,168,.18)"], [1, "rgba(255,95,168,0)"]]), blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
+    core.scale.set(1.8, 1.8, 1);
+    var clouds = [];
+    var cloudTex = [
+      glowTex([[0, "rgba(255,95,168,.35)"], [.5, "rgba(255,95,168,.08)"], [1, "rgba(255,95,168,0)"]]),
+      glowTex([[0, "rgba(185,140,255,.32)"], [.5, "rgba(185,140,255,.08)"], [1, "rgba(185,140,255,0)"]]),
+      glowTex([[0, "rgba(79,134,255,.32)"], [.5, "rgba(79,134,255,.08)"], [1, "rgba(79,134,255,0)"]])
+    ];
+    for (i = 0; i < 10; i++) {
+      var s = new T.Sprite(new T.SpriteMaterial({ map: cloudTex[i % 3], blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
+      var cr = .7 + Math.random() * 1.8, ca = Math.random() * Math.PI * 2, sz = 1.4 + Math.random() * 1.8;
+      s.scale.set(sz, sz, 1); s.userData = { r: cr, a: ca };
+      clouds.push(s); disk.add(s);
+    }
+    disk.add(galaxy);
 
-    /* pulses: sparks that run along the links */
-    var PN = phone ? 24 : 44, pulses = [], pPos = new Float32Array(PN * 3);
-    for (i = 0; i < PN; i++) pulses.push({ e: Math.floor(rnd() * edges.length), t: rnd(), v: .6 + rnd() * 1.2 });
-    var pGeo = new T.BufferGeometry(); pGeo.setAttribute("position", new T.BufferAttribute(pPos, 3));
-    var sparks = new T.Points(pGeo, new T.PointsMaterial({ size: .11, map: dot, color: C.yellow, transparent: true, opacity: 1, blending: T.AdditiveBlending, depthWrite: false }));
-    brain.add(sparks);
-
-    /* soft light behind */
-    var halo = new T.Sprite(new T.SpriteMaterial({ map: glowTex([[0, "rgba(185,140,255,.55)"], [.35, "rgba(255,95,168,.25)"], [.7, "rgba(79,134,255,.1)"], [1, "rgba(79,134,255,0)"]]), blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
-    halo.scale.set(7.5, 7.5, 1); halo.position.z = -1.5;
-
-    /* elliptical rings with neurons riding them, each reaching back to the brain */
+    /* elliptical orbits with small lights travelling them */
     var rings = new T.Group(), riders = [];
-    [[1.75, 1.2, "#fdc400", .7, [1.45, .2, 0]], [2.1, 1.45, "#ff5fa8", .55, [-.35, .9, .35]], [2.5, 1.7, "#7fe3ff", .45, [.3, -.6, 1]]].forEach(function (r, k) {
-      var curve = new T.EllipseCurve(0, 0, r[0], r[1], 0, Math.PI * 2);
-      var g = new T.BufferGeometry().setFromPoints(curve.getPoints(240).map(function (p) { return new T.Vector3(p.x, p.y, 0); }));
-      var line = new T.LineLoop(g, new T.LineBasicMaterial({ color: r[2], transparent: true, opacity: r[3], blending: T.AdditiveBlending, depthWrite: false }));
-      var holder = new T.Group(); holder.rotation.set(r[4][0], r[4][1], r[4][2]); holder.add(line);
-      holder.userData = { o: r[3], line: line, spin: (k % 2 ? -1 : 1) * (.05 + k * .03) };
-      for (var n = 0; n < (phone ? 4 : 6); n++) riders.push({ ring: holder, a: n / (phone ? 4 : 6) * Math.PI * 2 + k, rx: r[0], ry: r[1], color: new T.Color(r[2]), link: Math.floor(rnd() * NN) });
+    [[3.1, 1.25, "#fdc400", .5, [1.25, .15, .1]], [3.6, 1.6, "#ff5fa8", .35, [1.05, -.35, -.2]], [4.1, 1.95, "#7fe3ff", .28, [1.4, .4, .3]]].forEach(function (o, k) {
+      var curve = new T.EllipseCurve(0, 0, o[0], o[1], 0, Math.PI * 2);
+      var g = new T.BufferGeometry().setFromPoints(curve.getPoints(260).map(function (p) { return new T.Vector3(p.x, p.y, 0); }));
+      var line = new T.LineLoop(g, new T.LineBasicMaterial({ color: o[2], transparent: true, opacity: o[3], blending: T.AdditiveBlending, depthWrite: false }));
+      var holder = new T.Group(); holder.rotation.set(o[4][0], o[4][1], o[4][2]); holder.add(line);
+      holder.userData = { o: o[3], line: line };
+      for (var n = 0; n < 2; n++) {
+        var sp = new T.Sprite(new T.SpriteMaterial({ map: dot, color: o[2], blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
+        sp.scale.set(.2, .2, 1); holder.add(sp);
+        riders.push({ s: sp, a: n * Math.PI + k, rx: o[0], ry: o[1], v: (.12 - k * .025) * (k % 2 ? -1 : 1) });
+      }
       rings.add(holder);
     });
-    var RN = riders.length;
-    var rPos = new Float32Array(RN * 3), rCol = new Float32Array(RN * 3), lPos = new Float32Array(RN * 6), lCol = new Float32Array(RN * 6);
-    var rGeo = new T.BufferGeometry(); rGeo.setAttribute("position", new T.BufferAttribute(rPos, 3)); rGeo.setAttribute("color", new T.BufferAttribute(rCol, 3));
-    var riderPts = new T.Points(rGeo, new T.PointsMaterial({ size: .16, map: dot, vertexColors: true, transparent: true, opacity: 1, blending: T.AdditiveBlending, depthWrite: false }));
-    var lGeo = new T.BufferGeometry(); lGeo.setAttribute("position", new T.BufferAttribute(lPos, 3)); lGeo.setAttribute("color", new T.BufferAttribute(lCol, 3));
-    var riderLinks = new T.LineSegments(lGeo, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .38, blending: T.AdditiveBlending, depthWrite: false }));
-    riders.forEach(function (r, i) { r.color.toArray(rCol, i * 3); r.color.toArray(lCol, i * 6); C.cyan.toArray(lCol, i * 6 + 3); });
 
-    /* faint stars */
-    var SN = phone ? 400 : 800, sPos = new Float32Array(SN * 3);
+    /* background stars */
+    var SN = phone ? 500 : 1100, sPos = new Float32Array(SN * 3);
     for (i = 0; i < SN; i++) {
-      var rr = 3 + Math.pow(Math.random(), .6) * 8, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
-      sPos[i * 3] = rr * Math.sin(ph) * Math.cos(th); sPos[i * 3 + 1] = rr * Math.sin(ph) * Math.sin(th) * .7; sPos[i * 3 + 2] = rr * Math.cos(ph) - 2;
+      var rr = 4 + Math.random() * 10, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      sPos[i * 3] = rr * Math.sin(ph) * Math.cos(th); sPos[i * 3 + 1] = rr * Math.sin(ph) * Math.sin(th) * .7; sPos[i * 3 + 2] = rr * Math.cos(ph) - 3;
     }
     var sGeo = new T.BufferGeometry(); sGeo.setAttribute("position", new T.BufferAttribute(sPos, 3));
-    var stars = new T.Points(sGeo, new T.PointsMaterial({ size: .035, map: dot, color: "#ffe6f4", transparent: true, opacity: .7, blending: T.AdditiveBlending, depthWrite: false }));
+    var stars = new T.Points(sGeo, new T.PointsMaterial({ size: .04, map: dot, color: "#ffeef8", transparent: true, opacity: .8, blending: T.AdditiveBlending, depthWrite: false }));
 
-    var group = new T.Group(), net = new T.Group();
-    group.add(halo); group.add(brain); group.add(rings); net.add(riderPts); net.add(riderLinks); group.add(net);
+    var group = new T.Group();
+    group.add(disk); group.add(core); group.add(rings);
     scene.add(group); scene.add(stars);
 
     var form = { v: 0 }, prog = 0, mx = 0, my = 0, rx = 0, ry = 0, base = { x: 0, y: 0, s: 1 };
@@ -515,60 +471,55 @@
       renderer.setSize(w, h, false);
       pix.value = renderer.domElement.height / (2 * Math.tan(17 * Math.PI / 180));
       camera.aspect = w / h; camera.updateProjectionMatrix();
+      bgRes.value.set(renderer.domElement.width, renderer.domElement.height);
       phone = w <= 760;
-      base = phone ? { x: 0, y: 1.25, s: .7 } : { x: Math.min(1.9, 1.15 * camera.aspect), y: .1, s: 1.12 };
+      base = phone ? { x: 0, y: 1.25, s: .46 } : { x: Math.min(1.85, 1.1 * camera.aspect), y: .1, s: .66 };
     }
     layout(); addEventListener("resize", layout);
     addEventListener("pointermove", function (e) { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
 
     var visible = true, start = performance.now(), last = start;
     new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(document.querySelector(".x-hero"));
-    if (window.gsap) gsap.to(form, { v: 1, duration: 3, ease: "power2.inOut", delay: .2 });
+    /* the galaxy unfolds out of the dark on load */
+    if (window.gsap) gsap.to(form, { v: 1, duration: 3.6, ease: "power2.out", delay: .2 });
     else form.v = 1;
 
-    var v = new T.Vector3(), w2 = new T.Vector3();
     function frame(now) {
       requestAnimationFrame(frame);
       var dt = Math.min(.05, (now - last) / 1000); last = now;
       if (!visible || document.hidden) return;
       var t = (now - start) / 1000, f = form.v, p = prog, e = p * p * (3 - 2 * p);
-      shared.uTime.value = t; shared.uForm.value = f;
-      rx += (my * .4 - rx) * .04; ry += (mx * .6 - ry) * .04;
-      /* a three-quarter view that sways, so it always reads as a brain */
-      brain.rotation.y = -1.5 + Math.sin(t * .18) * .26 + ry;
-      brain.rotation.x = .12 + Math.sin(t * .13) * .08 + rx;
-      netLines.material.opacity = .22 * f; netNodes.material.opacity = .6 * f; sparks.material.opacity = f;
-      pulses.forEach(function (q, k) {
-        q.t += dt * q.v;
-        if (q.t >= 1) { q.t = 0; q.e = Math.floor(Math.random() * edges.length); }
-        var ed = edges[q.e]; v.copy(nodes[ed[0]]).lerp(nodes[ed[1]], q.t).toArray(pPos, k * 3);
+      uTime.value = t; uForm.value = f;
+      rx += (my * .3 - rx) * .04; ry += (mx * .4 - ry) * .04;
+      /* tilted disk; it turns to face the camera as you scroll in */
+      disk.rotation.set(1.08 + e * .4 + rx, 0, -.35 + ry * .5);
+      disk.rotation.y = 0;
+      clouds.forEach(function (c, k) {
+        var a = c.userData.a + t * .05 / (.5 + c.userData.r * .5);
+        c.position.set(Math.cos(a) * c.userData.r, 0, Math.sin(a) * c.userData.r);
+        c.material.opacity = f * (.45 + .15 * Math.sin(t * .3 + k));
       });
-      pGeo.attributes.position.needsUpdate = true;
-      rings.children.forEach(function (h) {
-        h.rotation.z += dt * h.userData.spin;
+      core.material.opacity = f * (.9 + .1 * Math.sin(t * .8));
+      riders.forEach(function (r) {
+        r.a += dt * r.v;
+        r.s.position.set(Math.cos(r.a) * r.rx, Math.sin(r.a) * r.ry, 0);
+        r.s.material.opacity = f * (1 - e);
+      });
+      rings.children.forEach(function (h, k) {
+        h.rotation.z += dt * (.015 + k * .006) * (k % 2 ? -1 : 1);
         h.userData.line.material.opacity = h.userData.o * f * (1 - e);
-        h.updateMatrix();
       });
-      brain.updateMatrix();
-      riders.forEach(function (r, i) {
-        var a = r.a + t * .25;
-        v.set(Math.cos(a) * r.rx, Math.sin(a) * r.ry, 0).applyMatrix4(r.ring.matrix);
-        v.toArray(rPos, i * 3); v.toArray(lPos, i * 6);
-        w2.copy(nodes[r.link]).applyMatrix4(brain.matrix).toArray(lPos, i * 6 + 3);
-      });
-      rGeo.attributes.position.needsUpdate = true; lGeo.attributes.position.needsUpdate = true;
-      riderPts.material.opacity = f * (1 - e); riderLinks.material.opacity = .55 * f * (1 - e) * (.75 + .25 * Math.sin(t * 2));
-      halo.material.opacity = f * (.9 + Math.sin(t * .6) * .1);
-      var s = base.s * (.4 + .6 * f) * (1 + e * .4);
-      group.scale.setScalar(s);
-      group.position.set(base.x * (1 - e), base.y * (1 - e) + Math.sin(t * .5) * .05, 0);
-      stars.rotation.y = t * .01;
-      stars.material.opacity = .7 * Math.min(1, f * 1.4);
-      /* scrolling: the camera travels into the brain */
-      camera.position.z = 7 - e * 5.6;
-      camera.position.x = mx * .25; camera.position.y = -my * .2;
-      camera.lookAt(group.position.x * .4, group.position.y * .4, 0);
-      renderer.render(scene, camera);
+      var sc = base.s * (1 + e * .6);
+      group.scale.setScalar(sc);
+      group.position.set(base.x * (1 - e), base.y * (1 - e) + Math.sin(t * .4) * .04, 0);
+      stars.rotation.y = t * .008;
+      stars.material.opacity = .8 * Math.min(1, f * 1.3);
+      /* scrolling: the camera flies into the core */
+      camera.position.z = 7 - e * 5.8;
+      camera.position.x = mx * .3; camera.position.y = -my * .25;
+      camera.lookAt(group.position.x * .5, group.position.y * .5, 0);
+      bgShift.value.set(phone ? -.16 : 0, phone ? -.18 : 0);
+      renderer.clear(); renderer.render(bgScene, bgCam); renderer.render(scene, camera);
     }
     requestAnimationFrame(frame);
     window.VHPorb = { progress: function (val) { prog = Math.max(0, Math.min(1, val)); } };
