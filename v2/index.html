@@ -456,8 +456,15 @@
   .x-bar { position: fixed; z-index: 50; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: calc(env(safe-area-inset-top, 0px) + 14px) max(20px, env(safe-area-inset-right, 0px)) 14px max(20px, env(safe-area-inset-left, 0px)); transition: transform .6s var(--ease), background .4s; }
   .x-bar::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(rgba(3,3,26,.85), rgba(3,3,26,0)); opacity: 0; transition: opacity .4s; pointer-events: none; }
   .x-bar.solid::before { opacity: 1; }
-  .x-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--sub); font-weight: 700; font-size: 16px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
-  .x-brand img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgba(255,255,255,.28), 0 6px 18px -6px rgba(229,48,127,.7); }
+  /* portrait: a turning colour ring, an orbiting spark and a soft pulse around it */
+  .x-brand { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; text-decoration: none; }
+  .x-brand img { position: relative; z-index: 1; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px #0a0a2c; transition: transform .5s var(--ease); }
+  .x-brand:hover img { transform: scale(1.06); }
+  .x-brand::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--yellow), var(--magenta), var(--violet), var(--blue), #7fe3ff, var(--yellow)); animation: spin 5s linear infinite; filter: drop-shadow(0 0 8px rgba(229,48,127,.55)); }
+  .x-brand::after { content: ""; position: absolute; inset: 0; border-radius: 50%; animation: halo 2.8s var(--ease) infinite; }
+  @keyframes halo { 0% { box-shadow: 0 0 0 0 rgba(185,140,255,.55); } 100% { box-shadow: 0 0 0 16px rgba(185,140,255,0); } }
+  .x-orbit { position: absolute; inset: -7px; z-index: 2; border-radius: 50%; animation: spin 3.2s linear infinite reverse; pointer-events: none; }
+  .x-orbit::before { content: ""; position: absolute; left: 50%; top: 0; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px 2px var(--yellow), 0 0 16px 4px rgba(253,196,0,.5); }
   .x-burger { width: 52px; height: 52px; padding: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
   .x-burger i { position: absolute; left: 16px; right: 16px; height: 2px; border-radius: 2px; background: currentColor; transition: transform .5s var(--ease), top .5s var(--ease); }
   .x-burger i:nth-child(1) { top: 21px; } .x-burger i:nth-child(2) { top: 29px; }
@@ -619,7 +626,8 @@
     .x-prog { display: none; }
   }
   @media (max-width: 760px) {
-    .x-brand span { display: none; }
+    .x-brand { width: 56px; height: 56px; }
+    .x-brand img { width: 48px; height: 48px; }
     .x-sticky { grid-template-columns: minmax(0, 1fr); align-content: center; }
     .x-state { height: 220vh; }
     .x-points { grid-template-columns: minmax(0, 1fr); gap: 34px; }
@@ -642,7 +650,7 @@
 <div class="field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
 <header class="x-bar" id="x-bar">
-  <a class="x-brand" href="#top"><img src="../assets/img/avatar.webp" alt="" width="40" height="40"><span>Vũ Hoàng Phương</span></a>
+  <a class="x-brand" href="#top" aria-label="Vũ Hoàng Phương, back to top"><img src="../assets/img/avatar-lg.webp" alt="" width="56" height="56"><i class="x-orbit" aria-hidden="true"></i></a>
   <button class="x-burger glass" type="button" id="x-burger" aria-expanded="false" aria-controls="x-menu" aria-label="Open menu"><i></i><i></i></button>
 </header>
 
