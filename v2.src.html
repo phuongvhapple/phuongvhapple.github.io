@@ -35,7 +35,7 @@
   .x-bar.solid::before { opacity: 1; }
   /* portrait: a turning colour ring, an orbiting spark and a soft pulse around it */
   .x-brand { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; text-decoration: none; }
-  .x-brand img { position: relative; z-index: 1; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px #0a0a2c; transition: transform .5s var(--ease); }
+  .x-brand img { position: relative; z-index: 1; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: radial-gradient(circle at 30% 25%, var(--yellow), var(--magenta) 55%, var(--violet)); box-shadow: 0 0 0 3px #0a0a2c; transition: transform .5s var(--ease); }
   .x-brand:hover img { transform: scale(1.06); }
   .x-brand::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--yellow), var(--magenta), var(--violet), var(--blue), #7fe3ff, var(--yellow)); animation: spin 5s linear infinite; filter: drop-shadow(0 0 8px rgba(229,48,127,.55)); }
   .x-brand::after { content: ""; position: absolute; inset: 0; border-radius: 50%; animation: halo 2.8s var(--ease) infinite; }
@@ -226,7 +226,7 @@
 <div class="field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
 <header class="x-bar" id="x-bar">
-  <a class="x-brand" href="#top" aria-label="Vũ Hoàng Phương, back to top"><img src="assets/img/avatar-lg.webp" alt="" width="56" height="56"><i class="x-orbit" aria-hidden="true"></i></a>
+  <a class="x-brand" href="#top" aria-label="Vũ Hoàng Phương, back to top"><img src="assets/img/avatar.webp" alt="" width="56" height="56"><i class="x-orbit" aria-hidden="true"></i></a>
   <button class="x-burger glass" type="button" id="x-burger" aria-expanded="false" aria-controls="x-menu" aria-label="Open menu"><i></i><i></i></button>
 </header>
 
