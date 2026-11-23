@@ -208,7 +208,6 @@ def v2(src, d, manifest, ld, faces, manifest_raw):
     def cover(p):
         return manifest.get(p["slug"], [None])[0]
 
-    hero_lines = "".join(f"<li><b>{esc(text(dd))}</b>{esc(text(sm))}</li>" for _, dd, sm in facts)
     points = "".join(
         f'<li><span class="x-num">{k + 1:02d}.</span><h3>{esc(titles[k]) if k < len(titles) else ""}</h3><p>{esc(t)}</p></li>'
         for k, t in enumerate(paras[1:]))
@@ -250,7 +249,6 @@ def v2(src, d, manifest, ld, faces, manifest_raw):
         "/*@EMAIL*/": copies[0], "/*@PHONE*/": copies[1],
         "/*@EYEBROW*/": text(re.search(r'<p class="eyebrow[^>]*>(.*?)</p>', src).group(1)),
         "/*@NAME*/": re.sub(r' style="[^"]*"', "", re.search(r"<h1>(.*?)</h1>", src, re.S).group(1)),
-        "<!--@HERO_LINES-->": hero_lines,
         "<!--@LEAD-->": esc(paras[0]), "<!--@POINTS-->": points, "<!--@STATS-->": stats,
         "<!--@WORK_NOTE-->": f"{len(d['projects'])} projects · {total} images",
         "<!--@WORK_LEDE-->": text(re.search(r'<p class="work-lede">(.*?)</p>', src, re.S).group(1)),

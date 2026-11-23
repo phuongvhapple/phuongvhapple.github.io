@@ -89,6 +89,7 @@ Nội dung, dự án, gallery, video và flip book đều lấy từ `portfolio.
 
 - Layout, màu và hiệu ứng riêng của v2 nằm trong `v2.src.html`. Không sửa `v2/index.html` bằng tay.
 - Tiêu đề ngắn của 4 ý trong Professional Summary: thuộc tính `data-titles` trong `v2.src.html`.
+- Câu giới thiệu dưới tên ở đầu trang v2 (`<p class="x-intro">`) viết riêng trong `v2.src.html`; bản v1 vẫn dùng phần số liệu của mình.
 - Đầu trang: thiên hà xoắn ốc 3D theo màu thương hiệu trong một không gian trừu tượng: lõi có tia sáng hình sao, vệt sáng toả ra, lưới chấm sáng cong, tinh vân xoáy và đốm màu (three.js r128 từ cdnjs, đoạn `hero: a spiral galaxy` trong `v2.src.html`; tham khảo video Daft Punk "Contact" 0:59–1:16). Không có hành tinh. Khi cuộn, camera bay vào lõi. Máy không hỗ trợ WebGL sẽ thấy khối màu CSS thay thế.
 - Thư viện hiệu ứng: GSAP 3.12.5 + ScrollTrigger và three.js r128 (cdnjs), Lenis 1.1.13 (jsDelivr). Nếu không tải được, trang vẫn hiện đủ nội dung, chỉ không có hiệu ứng.
 
