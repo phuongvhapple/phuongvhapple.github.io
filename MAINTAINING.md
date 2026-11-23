@@ -82,6 +82,16 @@ Trong `portfolio.src.html`: phần đầu trang và Professional Summary (`class
 kinh nghiệm (`var JOBS`), About, Characteristics, Education, Contact.
 Màu ở `:root` (đầu file), font ở `--headline`, `--sub`, `--body`; font Google ở `GOOGLE_FONTS` trong `build.py`.
 
+## Phiên bản 2 (https://phuongvhapple.github.io/v2/)
+
+Bản v2 có layout và hiệu ứng riêng (cuộn mượt, câu sáng dần theo từng chữ, tiêu đề ghim giữa màn hình, thẻ dự án đánh số, phần About trượt ngang).
+Nội dung, dự án, gallery, video và flip book đều lấy từ `portfolio.src.html`, nên **chỉ cần cập nhật như bình thường**: mỗi lần `python3 build.py` cả hai bản cùng được cập nhật.
+
+- Layout, màu và hiệu ứng riêng của v2 nằm trong `v2.src.html`. Không sửa `v2/index.html` bằng tay.
+- Tiêu đề ngắn của 4 ý trong Professional Summary: thuộc tính `data-titles` trong `v2.src.html`.
+- Ảnh chạy ở đầu trang: thuộc tính `data-hero` (danh sách dự án; dùng ảnh bìa ngang của mỗi dự án).
+- Thư viện hiệu ứng: GSAP 3.12.5 + ScrollTrigger (cdnjs) và Lenis 1.1.13 (jsDelivr). Nếu không tải được, trang vẫn hiện đủ nội dung, chỉ không có hiệu ứng.
+
 ## Những gì build tự làm
 
 `build.py` tạo `index.html` cùng `llms.txt`, `robots.txt`, `sitemap.xml` và phần chữ cho AI/Google đọc

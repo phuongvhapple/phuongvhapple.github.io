@@ -4,7 +4,8 @@ Wraps the source in a full HTML document, writes the @font-face rules for the
 self-hosted fonts in assets/fonts/, and inlines assets/img/manifest.json (made by
 optimize_images.py) so the page also works when opened straight from disk.
 
-  python3 build.py                        -> index.html (the real site), llms.txt, robots.txt, sitemap.xml
+  python3 build.py                        -> index.html (the real site), llms.txt, robots.txt, sitemap.xml,
+                                             and v2/index.html (version 2 layout from v2.src.html, same content)
   python3 build.py --artifact <file.html> -> shareable claude.ai artifact page
 
 The site draws its Work cards and Experience rail with JavaScript. AI readers and most
@@ -174,6 +175,118 @@ def llms(src, d, manifest):
     return "\n".join(out)
 
 
+def work_notes(d):
+    """Project write-ups for readers without scripts (shown only inside <noscript>)."""
+    notes = []
+    for p in d["projects"]:
+        bits = [f'<h3>{esc(p["title"])}</h3><p>{esc(p["role"] + (" · " + p["when"] if p["when"] else ""))}</p><p>{esc(p["text"])}</p>']
+        if p.get("extra"): bits.append(f'<p>{esc(p["extra"])}</p>')
+        if p.get("videos"): bits.append("<p>Videos: " + esc("; ".join(v[0] for v in p["videos"])) + "</p>")
+        if p.get("decks"): bits.append("<p>Decks and brochures: " + esc("; ".join(f"{k[1]}, {k[2]}" for k in p["decks"])) + "</p>")
+        notes.append("<article>" + "".join(bits) + "</article>")
+    return f'<noscript><div class="work-notes">{"".join(notes)}</div></noscript>'
+
+
+def plural(n, one, many):
+    return f"{n} {one if n == 1 else many}"
+
+
+def v2(src, d, manifest, ld, faces, manifest_raw):
+    """Version 2 (v2/index.html): the layout, styles and motion of v2.src.html filled with
+    the content, project data, project view and styles of portfolio.src.html, so both
+    versions always carry the same content."""
+    page = (ROOT / "v2.src.html").read_text()
+    paras = [text(p) for p in re.findall(r"<p[^>]*>(.*?)</p>", section(src, '<div class="summary">', "</div>"), re.S)]
+    facts = re.findall(r"<dt[^>]*>(.*?)</dt><dd>(.*?)<small>(.*?)</small></dd>", section(src, '<aside class="facts"', "</aside>"))
+    facts_note = text(re.search(r"<p>(.*?)</p>", section(src, '<aside class="facts"', "</aside>"), re.S).group(1))
+    about = section(src, '<section id="about">', "</section>")
+    traits = re.findall(r"<p>(.*?)</p>", section(about, "Characteristics", "<ul"), re.S)
+    contact = section(src, '<section id="contact">', "</section>")
+    copies = re.findall(r'data-copy="([^"]+)"', contact)
+    titles = re.search(r'data-titles="([^"]*)"', page).group(1).split("|")
+
+    def cover(p):
+        return manifest.get(p["slug"], [None])[0]
+
+    by_slug = {p["slug"]: p for p in d["projects"]}
+    hero = [by_slug[s] for s in re.search(r'data-hero="([^"]*)"', page).group(1).split() if s in by_slug and cover(by_slug[s]) and cover(by_slug[s])[1] >= 1.3]
+    hero_imgs = "".join(
+        f'<img src="assets/img/{p["slug"]}/{cover(p)[0]}" alt=""{" class=\"on\" fetchpriority=\"high\"" if k == 0 else ""} decoding="async">'
+        for k, p in enumerate(hero))
+    hero_lines = "".join(f"<li><b>{esc(text(dd))}</b>{esc(text(sm))}</li>" for _, dd, sm in facts)
+    points = "".join(
+        f'<li><span class="x-num">{k + 1:02d}.</span><h3>{esc(titles[k]) if k < len(titles) else ""}</h3><p>{esc(t)}</p></li>'
+        for k, t in enumerate(paras[1:]))
+    stats = "".join(
+        f'<dl class="x-stat"><dt class="sub">{esc(text(dt))}</dt><dd>{re.sub(r"(\d+)", r"<span class=\"n\">\1</span>", esc(text(dd)), count=1)}</dd>'
+        f'<small>{esc(text(sm))}</small></dl>' for dt, dd, sm in facts) + f'<p class="x-now">{esc(facts_note)}</p>'
+
+    def summary(p):
+        n = len(manifest.get(p["slug"], []))
+        bits = [plural(n, "image", "images")]
+        if p.get("videos"): bits.append(plural(len(p["videos"]), "film", "films"))
+        if p.get("decks"): bits.append(plural(len(p["decks"]), "book", "books"))
+        return " · ".join(bits)
+
+    cards = "".join(
+        f'<a class="x-card" href="#{p["slug"]}"><div class="art{" has-img" if cover(p) else ""}" style="--a:{p["a"]};--b:{p["b"]}">'
+        + (f'<img class="on" alt="" loading="{"eager" if k < 2 else "lazy"}" decoding="async" '
+           f'src="assets/img/{p["slug"]}/{cover(p)[0]}" srcset="assets/img/{p["slug"]}/thumbs/{cover(p)[0]} 720w, assets/img/{p["slug"]}/{cover(p)[0]} 1600w" '
+           f'sizes="(max-width: 760px) 100vw, 50vw">' if cover(p) else "")
+        + f'<b>{esc(p["code"])}</b></div><div class="x-meta"><span class="x-num">{k + 1:02d}.</span><h3>{esc(p["title"])}</h3>'
+        f'<p class="x-role sub">{esc(p["role"] + (" · " + p["when"] if p["when"] else ""))}</p><p class="x-count">{summary(p)}</p></div>'
+        f'<span class="x-go" aria-hidden="true">→</span></a>'
+        for k, p in enumerate(d["projects"]))
+    jobs = "".join(
+        f'<article class="x-job"><span class="x-num">{n + 1:02d}</span><time>{esc(j[0])}</time><div class="x-jt"><h3>{esc(j[1])}</h3>'
+        f'<p class="x-at sub">{esc(j[2])}</p><p class="x-jsum">{esc(j[3])}</p><div class="x-jd" id="xjd-{n}"><div><h4>Responsibilities</h4><ul>'
+        + "".join(f"<li>{esc(t)}</li>" for t in j[4]) +
+        f'</ul></div></div></div><button class="x-plus" type="button" aria-expanded="false" aria-controls="xjd-{n}" aria-label="Show responsibilities"></button></article>'
+        for n, j in enumerate(d["jobs"]))
+    panels = "".join(
+        f'<article class="x-panel glass"><span class="x-num">{k + 1:02d}.</span><h3>Characteristics</h3><p class="x-quote">{t.strip()}</p></article>'
+        for k, t in enumerate(traits))
+    panels += f'<article class="x-panel glass"><span class="x-num">{len(traits) + 1:02d}.</span><h3>Skills</h3>{section(src, "<ul class=\"skills\"", "</ul>")}</ul></article>'
+    panels += f'<article class="x-panel glass wide"><span class="x-num">{len(traits) + 2:02d}.</span><h3>Education</h3>{section(src, "<ul class=\"edu\"", "</ul>")}</ul></article>'
+    total = sum(len(manifest.get(p["slug"], [])) for p in d["projects"])
+    v1_css = section(src, "<style>", "</style>")[len("<style>"):]
+    fill = {
+        "/*@V1_CSS*/": v1_css,
+        "/*@EMAIL*/": copies[0], "/*@PHONE*/": copies[1],
+        "/*@EYEBROW*/": text(re.search(r'<p class="eyebrow[^>]*>(.*?)</p>', src).group(1)),
+        "/*@NAME*/": re.sub(r' style="[^"]*"', "", re.search(r"<h1>(.*?)</h1>", src, re.S).group(1)),
+        "<!--@HERO_IMAGES-->": hero_imgs, "<!--@HERO_LINES-->": hero_lines,
+        "<!--@LEAD-->": esc(paras[0]), "<!--@POINTS-->": points, "<!--@STATS-->": stats,
+        "<!--@WORK_NOTE-->": f"{len(d['projects'])} projects · {total} images",
+        "<!--@WORK_LEDE-->": text(re.search(r'<p class="work-lede">(.*?)</p>', src, re.S).group(1)),
+        "<!--@CARDS-->": cards + "\n" + work_notes(d),
+        "<!--@EXP_NOTE-->": text(re.search(r'id="experience">.*?<p class="sec-note[^>]*>(.*?)</p>', src, re.S).group(1)),
+        "<!--@JOBS-->": jobs, "<!--@ABOUT_PANELS-->": panels,
+        "<!--@CONTACT_TEXT-->": text(re.search(r"<h2>.*?</h2>\s*<p>(.*?)</p>", contact, re.S).group(1)),
+        "<!--@CONTACT_ROWS-->": section(contact, '<div class="row">', "\n      </div>\n    </div>").strip(),
+        "<!--@OVERLAY-->": section(src, '<div class="scrim"', "<script>").strip(),
+        "/*@V1_DATA*/": section(src, "  var PROJECTS = [", "  /* the build writes the cards"),
+        "/*@V1_PROJECT_VIEW*/": section(src, "  /* Project view", "  /* Motion:"),
+    }
+    for k, v in fill.items():
+        assert k in page, f"v2.src.html is missing {k}"
+        page = page.replace(k, v)
+    left = re.findall(r"<!--@[A-Z_]+-->|/\*@[A-Z_0-9]+\*/", page)
+    assert not left, f"unfilled markers: {left}"
+    page = page.replace("/*__FONTS__*/", faces).replace("/*__MANIFEST__*/{}", manifest_raw)
+    style_end = page.index("</style>") + len("</style>")
+    head = (HEAD.replace("{GOOGLE_FONTS}", GOOGLE_FONTS).replace("{SITE}", SITE)
+            .replace(f'<meta property="og:url" content="{SITE}">', f'<meta property="og:url" content="{SITE}v2/">'))
+    page = (head + ld + page[:style_end] + "\n</head>\n<body class=\"v2\">\n" + page[style_end:].lstrip() + "</body>\n</html>\n")
+    # the page lives one folder down: point every local asset path up a level
+    page = re.sub(r"""(?<=["'(])assets/""", "../assets/", page)
+    page = re.sub(r"""(?<=, )assets/""", "../assets/", page)  # second srcset entry
+    out = ROOT / "v2" / "index.html"
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(page)
+    return f"v2/index.html: {len(page) // 1024} KB"
+
+
 def main():
     src = (ROOT / "portfolio.src.html").read_text()
     d = data(src)
@@ -199,6 +312,8 @@ def main():
             + "\n</head>\n<body>\n" + src[style_end:].lstrip() + "</body>\n</html>\n")
     (ROOT / "index.html").write_text(page)
     print(f"index.html: {len(page) // 1024} KB, llms.txt, robots.txt, sitemap.xml")
+    raw = (ROOT / "portfolio.src.html").read_text()
+    print(v2(raw, d, manifest_data, ld, faces, manifest))
 
 
 if __name__ == "__main__":
