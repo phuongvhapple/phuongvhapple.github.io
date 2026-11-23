@@ -476,13 +476,22 @@
   .x-mfoot { max-width: 1280px; width: 100%; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-family: var(--sub); font-weight: 500; font-size: 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-dim); border-top: 1px solid var(--line); padding-top: 18px; }
 
   /* hero: full-bleed project images, name and lines bottom left */
-  .x-hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; }
-  .x-media { position: absolute; inset: 0; will-change: transform; }
-  .x-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.8s ease; }
-  .x-media img.on { opacity: 1; animation: kenburns 9s linear both; }
-  @keyframes kenburns { from { transform: scale(1.14) translate(1.5%, 1%); } to { transform: scale(1.02) translate(0, 0); } }
-  .x-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(3,3,26,.55) 0%, rgba(3,3,26,.05) 30%, rgba(3,3,26,.35) 58%, var(--bg) 100%), linear-gradient(90deg, rgba(3,3,26,.75), rgba(3,3,26,0) 62%); }
-  .x-shade::after { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 50% at 10% 100%, rgba(229,48,127,.35), transparent 70%), radial-gradient(50% 50% at 95% 90%, rgba(13,61,255,.3), transparent 70%); mix-blend-mode: screen; }
+  /* hero: a liquid-chrome orb over a neon grid; the camera dives into it as you scroll */
+  .x-hero { position: relative; height: 210vh; }
+  .x-hstick { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; }
+  #x-orb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .x-orb-alt { position: absolute; right: 8vw; top: 50%; width: min(46vw, 560px); aspect-ratio: 1; translate: 0 -50%; display: none; }
+  .no-gl .x-orb-alt { display: block; }
+  .x-orb-alt i { position: absolute; inset: 0; border-radius: 50%; filter: blur(2px); mix-blend-mode: screen; animation: spin 18s linear infinite, morph 11s ease-in-out infinite alternate; }
+  .x-orb-alt i:nth-child(1) { background: conic-gradient(from 0deg, var(--yellow), var(--magenta), var(--violet), var(--blue), var(--yellow)); opacity: .85; }
+  .x-orb-alt i:nth-child(2) { inset: 12%; background: conic-gradient(from 140deg, var(--magenta), transparent 40%, var(--blue), transparent 80%); animation-duration: 12s, 9s; animation-direction: reverse, alternate; }
+  .x-orb-alt i:nth-child(3) { inset: 28%; background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.75), transparent 60%); }
+  /* LED-screen scanlines and a soft vignette */
+  .x-grain { position: absolute; inset: 0; pointer-events: none; opacity: .32; mix-blend-mode: multiply; background: repeating-linear-gradient(180deg, rgba(0,0,0,0) 0 2px, rgba(0,0,10,.55) 2px 3px); }
+  .x-grain::after { content: ""; position: absolute; left: 0; right: 0; height: 18vh; top: -20vh; background: linear-gradient(transparent, rgba(160,140,255,.07), transparent); mix-blend-mode: screen; animation: sweep 7s linear infinite; }
+  @keyframes sweep { to { transform: translateY(140vh); } }
+  .x-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(3,3,26,.62), rgba(3,3,26,0) 52%), radial-gradient(130% 100% at 60% 45%, transparent 50%, rgba(3,3,26,.6) 100%), linear-gradient(180deg, rgba(3,3,26,.45), transparent 18%, transparent 86%, var(--bg)); }
+  .x-veil { position: absolute; inset: 0; pointer-events: none; background: var(--bg); opacity: 0; }
   .x-copy { padding-bottom: clamp(56px, 11vh, 120px); }
   .x-eyebrow { margin: 0 0 14px; font-size: 15px; color: var(--yellow); letter-spacing: .5em; }
   .x-hero h1 .ln { animation: shine 8s ease-in-out 2.4s infinite; }
@@ -490,7 +499,7 @@
   .x-lines li { color: #d9d7ea; font-size: 18px; line-height: 1.45; }
   .x-lines b { font-family: var(--sub); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); margin-right: 8px; }
   .x-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-  .x-cue { position: absolute; z-index: 2; right: max(20px, env(safe-area-inset-right, 0px)); bottom: clamp(56px, 11vh, 120px); display: grid; justify-items: center; gap: 12px; font-family: var(--sub); font-weight: 500; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink-dim); writing-mode: vertical-rl; }
+  .x-cue { position: absolute; z-index: 2; white-space: nowrap; right: max(20px, env(safe-area-inset-right, 0px)); bottom: clamp(56px, 11vh, 120px); display: grid; justify-items: center; gap: 12px; font-family: var(--sub); font-weight: 500; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink-dim); writing-mode: vertical-rl; }
   .x-cue::after { content: ""; width: 1px; height: 64px; background: linear-gradient(var(--yellow), transparent); animation: cue 2.2s var(--ease) infinite; transform-origin: top; }
   @keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
@@ -649,19 +658,23 @@
 
 <main>
   <section class="x-hero" id="top">
-    <!-- hero slideshow: the cover image of each project listed here, in this order (wide images only) -->
-    <div class="x-media" id="x-media" aria-hidden="true" data-hero="sunrise-events-vietnam cen-group-rising-star-media thien-minh-hospitality-thien-minh-group freelancer"><img src="../assets/img/sunrise-events-vietnam/01.webp" alt="" class="on" fetchpriority="high" decoding="async"><img src="../assets/img/cen-group-rising-star-media/01.webp" alt="" decoding="async"><img src="../assets/img/thien-minh-hospitality-thien-minh-group/01.webp" alt="" decoding="async"><img src="../assets/img/freelancer/01.webp" alt="" decoding="async"></div>
-    <div class="x-shade" aria-hidden="true"></div>
-    <div class="x-in x-copy">
-      <p class="x-eyebrow sub x-rise">Creative</p>
-      <h1><span class="ln">Vũ Hoàng</span> <span class="ln hl">Phương</span></h1>
-      <ul class="x-lines"><li><b>10+ years</b>Graphic design to creative direction</li><li><b>Up to 10</b>Design, photo, video, events, digital</li></ul>
-      <div class="x-cta x-rise">
-        <a class="btn primary" href="#work">Discover my work</a>
-        <a class="btn" href="#contact">Get in touch</a>
+    <div class="x-hstick">
+      <canvas id="x-orb" aria-hidden="true"></canvas>
+      <div class="x-orb-alt" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="x-shade" aria-hidden="true"></div>
+      <div class="x-grain" aria-hidden="true"></div>
+      <div class="x-in x-copy">
+        <p class="x-eyebrow sub">Creative</p>
+        <h1><span class="ln">Vũ Hoàng</span> <span class="ln hl">Phương</span></h1>
+        <ul class="x-lines"><li><b>10+ years</b>Graphic design to creative direction</li><li><b>Up to 10</b>Design, photo, video, events, digital</li></ul>
+        <div class="x-cta">
+          <a class="btn primary" href="#work">Discover my work</a>
+          <a class="btn" href="#contact">Get in touch</a>
+        </div>
       </div>
+      <div class="x-cue" aria-hidden="true">Scroll to discover</div>
+      <div class="x-veil" aria-hidden="true"></div>
     </div>
-    <div class="x-cue" aria-hidden="true">Scroll</div>
   </section>
 
   <section class="x-state" id="summary" aria-label="Professional summary">
@@ -790,6 +803,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
   var PROJECTS = [
     { code: "DLVN", role: "Senior Design Officer", when: "2022 to present", title: "Dai-ichi Life Vietnam", a: "#1d9b5a", b: "#fdc400", slug: "dai-ichi-life-vietnam",
@@ -1184,6 +1198,214 @@
 
 
 
+  /* ===== hero orb: a futuristic liquid-chrome shape above a neon grid =====
+     A sphere pushed in and out by layered noise, rendered as chrome that reflects magenta,
+     blue and yellow neon strips, inside thin neon rings, over a grid that runs to a glowing
+     horizon, with faint stars.
+     Scroll progress (0 to 1 over the hero) moves the camera into it. Without WebGL the page
+     shows a CSS version of the shape instead. */
+  (function () {
+    var canvas = document.getElementById("x-orb");
+    var T = window.THREE, gl = null;
+    try { gl = T && (canvas.getContext("webgl2") || canvas.getContext("webgl")); } catch (e) {}
+    if (!T || !gl) { document.documentElement.classList.add("no-gl"); return; }
+
+    var renderer = new T.WebGLRenderer({ canvas: canvas, context: gl, antialias: true, alpha: true });
+    renderer.setClearColor(0x000000, 0);
+    var scene = new T.Scene();
+    scene.fog = new T.FogExp2(0x03031a, 0.035);
+    var camera = new T.PerspectiveCamera(34, 1, 0.1, 100);
+    camera.position.set(0, 0, 7);
+    var phone = matchMedia("(max-width: 760px)").matches;
+
+    var noise = [
+      "vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}",
+      "vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}",
+      "vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}",
+      "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
+      "float snoise(vec3 v){const vec2 C=vec2(1.0/6.0,1.0/3.0);const vec4 D=vec4(0.0,0.5,1.0,2.0);",
+      "vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.0-g;",
+      "vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;",
+      "i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
+      "float n_=0.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.0*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.0*x_);",
+      "vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.0-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);",
+      "vec4 s0=floor(b0)*2.0+1.0;vec4 s1=floor(b1)*2.0+1.0;vec4 sh=-step(h,vec4(0.0));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
+      "vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);",
+      "vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
+      "vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);m=m*m;",
+      "return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}"
+    ].join("\n");
+
+    var U = {
+      uTime: { value: 0 }, uAmp: { value: 0.26 }, uFreq: { value: 0.9 }, uForm: { value: 0 },
+      uMagenta: { value: new T.Color("#e5307f") }, uViolet: { value: new T.Color("#8b2fe0") },
+      uBlue: { value: new T.Color("#0d3dff") }, uYellow: { value: new T.Color("#fdc400") }
+    };
+    var orbMat = new T.ShaderMaterial({
+      uniforms: U, transparent: true,
+      extensions: { derivatives: true },
+      vertexShader: [
+        "uniform float uTime, uAmp, uFreq, uForm;",
+        "varying vec3 vPos; varying float vN; varying vec3 vObj; varying vec3 vNorm;",
+        noise,
+        "float field(vec3 p){ float t = uTime * 0.11;",
+        "  return snoise(p * uFreq + vec3(t, t * 0.7, -t)) + 0.4 * snoise(p * uFreq * 2.1 + vec3(-t * 1.3, t, t * 0.5)); }",
+        "vec3 shape(vec3 p){ vec3 d = normalize(p); return d * (1.0 + field(d) * uAmp * uForm); }",
+        "void main(){",
+        "  vec3 p = normalize(position);",
+        "  vec3 a = normalize(abs(p.y) < 0.99 ? cross(p, vec3(0.0, 1.0, 0.0)) : cross(p, vec3(1.0, 0.0, 0.0)));",
+        "  vec3 b = cross(p, a);",
+        "  float e = 0.012;",
+        "  vec3 q = shape(p), qa = shape(p + a * e), qb = shape(p + b * e);",
+        "  vec3 n = normalize(cross(qa - q, qb - q));",
+        "  if (dot(n, p) < 0.0) n = -n;",
+        "  vN = field(p); vObj = p;",
+        "  vNorm = normalize(normalMatrix * n);",
+        "  vec4 mv = modelViewMatrix * vec4(q, 1.0);",
+        "  vPos = mv.xyz;",
+        "  gl_Position = projectionMatrix * mv;",
+        "}"
+      ].join("\n"),
+      fragmentShader: [
+        "uniform float uTime, uForm; uniform vec3 uMagenta, uViolet, uBlue, uYellow;",
+        "varying vec3 vPos; varying float vN; varying vec3 vObj; varying vec3 vNorm;",
+        "void main(){",
+        "  vec3 N = normalize(vNorm);",
+        "  vec3 V = normalize(-vPos);",
+        "  float facing = clamp(dot(N, V), 0.0, 1.0);",
+        "  float fres = pow(1.0 - facing, 2.4);",
+        "  float t = clamp(vN * 0.55 + 0.5, 0.0, 1.0);",
+        /* liquid chrome: the surface reflects a dark studio lined with neon strips */
+        "  vec3 R = reflect(-V, N);",
+        "  float y = R.y + 0.12 * sin(R.x * 3.0 + uTime * 0.3);",
+        "  vec3 env = mix(vec3(0.012, 0.012, 0.06), uViolet * 0.35, smoothstep(-0.2, 0.9, y));",
+        "  env += uMagenta * 1.6 * pow(1.0 - abs(y - 0.18) * 7.0, 3.0) * step(abs(y - 0.18), 0.143);",
+        "  env += uBlue * 1.8 * pow(1.0 - abs(y + 0.32) * 6.0, 3.0) * step(abs(y + 0.32), 0.166);",
+        "  env += uYellow * 1.4 * pow(1.0 - abs(y - 0.62) * 12.0, 3.0) * step(abs(y - 0.62), 0.083);",
+        "  env += vec3(1.0, 0.95, 1.0) * pow(max(R.y, 0.0), 24.0) * 1.2;",
+        "  float stripe = smoothstep(0.92, 1.0, sin(atan(R.z, R.x) * 10.0 + uTime * 0.2));",
+        "  env += mix(uMagenta, uBlue, 0.5 + 0.5 * R.x) * stripe * 0.35 * smoothstep(-0.1, 0.4, y);",
+        "  vec3 col = env * (0.55 + 0.45 * fres) + vec3(0.02, 0.02, 0.05);",
+        "  float band = sin(t * 9.0 + vObj.y * 3.0 - uTime * 0.5) * 0.5 + 0.5;",
+        "  col += uYellow * pow(band, 18.0) * 0.25;",
+        "  col += fres * mix(uMagenta, uBlue, 0.5 + 0.5 * sin(uTime * 0.25 + vObj.x)) * 0.9;",
+        "  gl_FragColor = vec4(col, uForm);",
+        "}"
+      ].join("\n")
+    });
+    var orb = new T.Mesh(new T.IcosahedronGeometry(1, phone ? 40 : 72), orbMat);
+
+    /* neon grid floor running to the horizon */
+    var gridMat = new T.ShaderMaterial({
+      uniforms: { uTime: U.uTime, uForm: U.uForm, uProg: { value: 0 }, uMagenta: U.uMagenta, uBlue: U.uBlue },
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+      extensions: { derivatives: true },
+      vertexShader: "varying vec2 vUv; varying vec3 vW; void main(){ vUv = uv; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }",
+      fragmentShader: [
+        "uniform float uTime, uForm, uProg; uniform vec3 uMagenta, uBlue; varying vec2 vUv; varying vec3 vW;",
+        "float line(float x){ float d = abs(fract(x - 0.5) - 0.5) / fwidth(x); return 1.0 - min(d, 1.0); }",
+        "void main(){",
+        "  vec2 g = vec2(vW.x, vW.z + uTime * 0.6 + uProg * 6.0) * 0.9;",
+        "  float l = max(line(g.x), line(g.y));",
+        "  float dist = length(vW.xz - vec2(0.0, 2.0));",
+        "  float fade = smoothstep(26.0, 3.0, dist) * smoothstep(0.0, 1.5, dist);",
+        "  vec3 c = mix(uBlue, uMagenta, smoothstep(14.0, 2.0, dist));",
+        "  gl_FragColor = vec4(c * l * fade * 1.5 * uForm, l * fade * 0.6 * uForm);",
+        "}"
+      ].join("\n")
+    });
+    var grid = new T.Mesh(new T.PlaneGeometry(60, 60, 1, 1), gridMat);
+    grid.rotation.x = -Math.PI / 2; grid.position.y = -1.55;
+    scene.add(grid);
+    /* horizon glow */
+    var sun = new T.Mesh(new T.PlaneGeometry(40, 6), new T.ShaderMaterial({
+      uniforms: { uForm: U.uForm, uMagenta: U.uMagenta, uViolet: U.uViolet },
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+      vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+      fragmentShader: "uniform float uForm; uniform vec3 uMagenta, uViolet; varying vec2 vUv; void main(){ float h = exp(-pow((vUv.y - 0.2) * 5.0, 2.0)) * (1.0 - pow(abs(vUv.x - 0.5) * 2.0, 2.0)); gl_FragColor = vec4(mix(uViolet, uMagenta, h) * h * 0.55 * uForm, h * 0.5 * uForm); }"
+    }));
+    sun.position.set(0, -1.6, -22); scene.add(sun);
+
+    /* soft glow behind it */
+    function glowTex(stops) {
+      var c = document.createElement("canvas"); c.width = c.height = 256;
+      var x = c.getContext("2d"), g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+      stops.forEach(function (s) { g.addColorStop(s[0], s[1]); });
+      x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+      return new T.CanvasTexture(c);
+    }
+    var halo = new T.Sprite(new T.SpriteMaterial({ map: glowTex([[0, "rgba(229,48,127,.55)"], [.35, "rgba(139,47,224,.28)"], [.7, "rgba(13,61,255,.08)"], [1, "rgba(13,61,255,0)"]]), blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
+    halo.scale.set(6.5, 6.5, 1); halo.position.z = -1.2;
+
+    /* thin rings, like an orbit or an old instrument */
+    var rings = new T.Group();
+    [[1.6, 0.006, "#fdc400", .75, [1.45, .2, 0]], [1.95, 0.004, "#e5307f", .6, [-.4, .9, .4]], [2.4, 0.003, "#4d74ff", .5, [.3, -.6, 1]]].forEach(function (r) {
+      var m = new T.Mesh(new T.TorusGeometry(r[0], r[1], 6, 320), new T.MeshBasicMaterial({ color: r[2], transparent: true, opacity: r[3], blending: T.AdditiveBlending, depthWrite: false }));
+      m.rotation.set(r[4][0], r[4][1], r[4][2]); m.userData.o = r[3]; rings.add(m);
+    });
+
+    /* drifting dust */
+    var N = phone ? 500 : 1100, pos = new Float32Array(N * 3);
+    for (var i = 0; i < N; i++) {
+      var r = 2.2 + Math.pow(Math.random(), .6) * 7, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(ph) * Math.cos(th); pos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th) * .7; pos[i * 3 + 2] = r * Math.cos(ph);
+    }
+    var dustGeo = new T.BufferGeometry(); dustGeo.setAttribute("position", new T.BufferAttribute(pos, 3));
+    var dust = new T.Points(dustGeo, new T.PointsMaterial({ size: phone ? .05 : .04, map: glowTex([[0, "rgba(255,255,255,1)"], [.25, "rgba(255,230,245,.7)"], [1, "rgba(255,255,255,0)"]]), transparent: true, opacity: .75, blending: T.AdditiveBlending, depthWrite: false, sizeAttenuation: true }));
+
+    var group = new T.Group();
+    group.add(halo); group.add(orb); group.add(rings);
+    scene.add(group); scene.add(dust);
+
+    var form = { v: 0 }, prog = 0, mx = 0, my = 0, rx = 0, ry = 0, base = { x: 0, y: 0, s: 1 };
+    function layout() {
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 1.75));
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+      phone = w <= 760;
+      /* wide screens: the orb sits right of the name; phones: above it */
+      base = phone ? { x: 0, y: 1.3, s: .6 } : { x: Math.min(1.9, 1.15 * camera.aspect), y: .15, s: 1 };
+    }
+    layout(); addEventListener("resize", layout);
+    addEventListener("pointermove", function (e) { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
+
+    var visible = true, start = performance.now();
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(document.querySelector(".x-hero"));
+
+    /* the shape gathers out of the dark on load */
+    if (window.gsap) gsap.to(form, { v: 1, duration: 3.2, ease: "power2.inOut", delay: .2 });
+    else form.v = 1;
+
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (!visible || document.hidden) return;
+      var t = (now - start) / 1000, f = form.v, p = prog, e = p * p * (3 - 2 * p);
+      U.uTime.value = t; U.uForm.value = f; gridMat.uniforms.uProg.value = e;
+      U.uAmp.value = .17 + e * .25 + Math.sin(t * .4) * .025;
+      rx += (my * .5 - rx) * .04; ry += (mx * .7 - ry) * .04;
+      orb.rotation.y = t * .07 + ry; orb.rotation.x = Math.sin(t * .13) * .25 + rx;
+      rings.children.forEach(function (m, k) {
+        m.rotation.z += .0009 * (k % 2 ? -1 : 1) * (1 + k); m.rotation.x += .0004 * (k + 1);
+        m.material.opacity = m.userData.o * f * (1 - e);
+        m.scale.setScalar(1 + e * (1.2 + k * .5));
+      });
+      halo.material.opacity = f * (.85 + Math.sin(t * .6) * .15);
+      var s = base.s * (.35 + .65 * f) * (1 + e * .5);
+      group.scale.setScalar(s);
+      group.position.set(base.x * (1 - e), base.y * (1 - e) + Math.sin(t * .5) * .05, 0);
+      dust.rotation.y = t * .012; dust.rotation.x = Math.sin(t * .05) * .1;
+      dust.material.opacity = .75 * Math.min(1, f * 1.4);
+      /* scrolling: the camera travels into the shape */
+      camera.position.z = 7 - e * 5.4;
+      camera.position.x = mx * .25; camera.position.y = -my * .2;
+      camera.lookAt(group.position.x * .4, group.position.y * .4, 0);
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(frame);
+    window.VHPorb = { progress: function (v) { prog = Math.max(0, Math.min(1, v)); } };
+  })();
+
   /* ===== v2 motion ===== */
   (function () {
     var G = window.gsap && window.ScrollTrigger ? window.gsap : null;
@@ -1248,13 +1470,6 @@
     function onScroll() { bar.classList.toggle("solid", window.scrollY > 40); }
     addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
-    /* hero slideshow */
-    var slides = [].slice.call(document.querySelectorAll("#x-media img")), si = 0;
-    if (slides.length > 1) setInterval(function () {
-      if (document.hidden || window.scrollY > innerHeight) return;
-      slides[si].classList.remove("on"); si = (si + 1) % slides.length; slides[si].classList.add("on");
-    }, 6000);
-
     /* experience rows open in place */
     document.getElementById("jobs").addEventListener("click", function (e) {
       var job = e.target.closest(".x-job"); if (!job || e.target.closest("a")) return;
@@ -1285,14 +1500,16 @@
 
     if (!G) return; /* without the animation library the page simply shows everything */
 
-    /* hero entrance and scroll-away */
+    /* hero: the orb gathers out of the dark, then the words arrive; scrolling dives into the orb */
     var heroLn = document.querySelectorAll(".x-hero h1 .ln");
-    G.from(".x-media", { scale: 1.12, duration: 2.4, ease: "expo.out" });
-    G.from(heroLn, { yPercent: 70, opacity: 0, filter: "blur(10px)", duration: 1.4, ease: "expo.out", stagger: .14, delay: .2 });
-    G.from(".x-eyebrow, .x-lines li, .x-cta", { y: 28, opacity: 0, duration: 1.2, ease: "expo.out", stagger: .09, delay: .45 });
-    G.from(".x-bar", { y: -30, opacity: 0, duration: 1.2, ease: "expo.out", delay: .6 });
-    G.to(".x-media", { yPercent: 22, scale: 1.08, ease: "none", scrollTrigger: { trigger: ".x-hero", start: "top top", end: "bottom top", scrub: true } });
-    G.to(".x-copy", { yPercent: -30, opacity: 0, ease: "none", scrollTrigger: { trigger: ".x-hero", start: "35% top", end: "bottom top", scrub: true } });
+    G.from(heroLn, { yPercent: 70, opacity: 0, filter: "blur(14px)", duration: 2, ease: "expo.out", stagger: .2, delay: 1.3 });
+    G.from(".x-eyebrow", { opacity: 0, letterSpacing: "1.4em", filter: "blur(6px)", duration: 2.2, ease: "expo.out", delay: 1 });
+    G.from(".x-lines li, .x-cta", { y: 28, opacity: 0, duration: 1.6, ease: "expo.out", stagger: .12, delay: 1.9 });
+    G.from(".x-bar, .x-cue", { opacity: 0, duration: 1.6, ease: "power2.out", delay: 2.4 });
+    ScrollTrigger.create({ trigger: ".x-hero", start: "top top", end: "bottom bottom", scrub: true,
+      onUpdate: function (st) { if (window.VHPorb) VHPorb.progress(st.progress); } });
+    G.to(".x-copy, .x-cue", { y: -60, opacity: 0, filter: "blur(8px)", ease: "none", scrollTrigger: { trigger: ".x-hero", start: "top top", end: "35% top", scrub: true } });
+    G.to(".x-veil", { opacity: 1, ease: "none", scrollTrigger: { trigger: ".x-hero", start: "70% bottom", end: "bottom bottom", scrub: true } });
 
     /* statement lights up word by word */
     var big = document.getElementById("x-big");
