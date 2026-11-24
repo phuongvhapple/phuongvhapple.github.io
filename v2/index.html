@@ -513,7 +513,7 @@
   @keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
   /* statement: the first summary line lights up word by word as you scroll */
-  .x-state { position: relative; height: 260vh; }
+  .x-state { position: relative; height: 200vh; }
   .x-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); align-content: center; gap: 24px 48px; }
   .x-sticky .x-label { align-self: start; margin-top: .9em; }
   .x-big { margin: 0; font-family: var(--headline); font-weight: 400; font-size: clamp(28px, 4.1vw, 58px); line-height: 1.2; letter-spacing: -.01em; }
@@ -534,7 +534,7 @@
   .x-now { margin: 0; color: var(--ink-dim); font-size: 17px; border-left: 2px solid var(--yellow); padding-left: 20px; max-width: 46ch; justify-self: end; }
 
   /* pinned section titles: a word stays centred while the screen scrolls past */
-  .x-pin { position: relative; height: 170vh; }
+  .x-pin { position: relative; height: 140vh; }
   .x-pin-in { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; place-content: center; justify-items: center; gap: 22px; text-align: center; padding: 0 20px; }
   .x-pin-in .x-label { letter-spacing: .4em; }
   .x-pin-title { font-size: clamp(48px, 10vw, 148px); line-height: .98; letter-spacing: -.03em; text-transform: uppercase; will-change: transform, opacity; }
@@ -631,13 +631,13 @@
     .x-brand { width: 56px; height: 56px; }
     .x-brand img { width: 48px; height: 48px; }
     .x-sticky { grid-template-columns: minmax(0, 1fr); align-content: center; }
-    .x-state { height: 220vh; }
+    .x-state { height: 170vh; }
     .x-points { grid-template-columns: minmax(0, 1fr); gap: 34px; }
     .x-stats { margin-top: 70px; }
     .x-cards { grid-template-columns: minmax(0, 1fr); gap: 64px; }
     .x-cards .x-card:nth-child(even) { margin-top: 0; }
     .x-go { transform: none; width: 48px; height: 48px; right: 12px; top: 12px; }
-    .x-pin { height: 140vh; }
+    .x-pin { height: 120vh; }
     .x-job { grid-template-columns: minmax(0, 1fr) 48px; padding: 26px 0; }
     .x-job .x-num { display: none; }
     .x-job time, .x-job .x-jt { grid-column: 1; }
@@ -1596,6 +1596,18 @@
 
   /* ===== v2 motion ===== */
   (function () {
+    /* a reload always starts at the top with the hero (the owner's wish), instead of the
+       browser putting people back where they had scrolled to. A project link (#slug) still
+       opens that project; any other #section left in the address is dropped. */
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    /* ScrollTrigger remembers the setting it found when it loaded and puts it back after each
+       refresh, so it has to be told too */
+    if (window.ScrollTrigger) ScrollTrigger.clearScrollMemory("manual");
+    var deepLink = PROJECTS.some(function (q) { return "#" + q.slug === location.hash; });
+    if (location.hash && !deepLink) history.replaceState(history.state, "", location.pathname + location.search);
+    scrollTo(0, 0);
+    var moved = false;
+    ["wheel", "touchstart", "keydown"].forEach(function (ev) { addEventListener(ev, function () { moved = true; }, { once: true, passive: true }); });
     var G = window.gsap && window.ScrollTrigger ? window.gsap : null;
     if (G) G.registerPlugin(ScrollTrigger);
     var body = document.body, bar = document.getElementById("x-bar");
@@ -1765,7 +1777,12 @@
     G.from(words(document.querySelector(".x-huge")), { yPercent: 115, rotate: 6, duration: 1.4, ease: "expo.out", stagger: .1, scrollTrigger: { trigger: ".x-contact", start: "top 75%" } });
     G.from(".x-contact > p, .x-contact .row, .x-contact footer", { y: 30, opacity: 0, duration: 1.1, ease: "expo.out", stagger: .08, scrollTrigger: { trigger: ".x-contact .rows", start: "top 92%" } });
 
-    addEventListener("load", function () { ScrollTrigger.refresh(); });
+    addEventListener("load", function () {
+      /* some browsers restore the old position late, at load; undo that unless the visitor
+         has already started scrolling */
+      if (!moved && window.scrollY > 0) { if (lenis) lenis.scrollTo(0, { immediate: true, force: true }); scrollTo(0, 0); }
+      ScrollTrigger.refresh();
+    });
   })();
 </script>
 </body>
