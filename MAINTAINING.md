@@ -85,11 +85,16 @@ Màu ở `:root` (đầu file), font ở `--headline`, `--sub`, `--body`; font G
 ## Phiên bản 2 (https://phuongvhapple.github.io/v2/)
 
 Bản v2 có layout và hiệu ứng riêng (cuộn mượt, câu sáng dần theo từng chữ, tiêu đề ghim giữa màn hình, thẻ dự án đánh số, phần About trượt ngang).
-Nội dung, dự án, gallery, video và flip book đều lấy từ `portfolio.src.html`, nên **chỉ cần cập nhật như bình thường**: mỗi lần `python3 build.py` cả hai bản cùng được cập nhật.
+Dự án, ảnh gallery, video, flip book, số liệu (10+ years, Up to 10), kỹ năng, email và số điện thoại lấy từ `portfolio.src.html`: thêm hoặc đổi những thứ này như bình thường, mỗi lần `python3 build.py` cả hai bản cùng được cập nhật.
+
+**Chữ của v2 thì viết riêng** trong `v2-copy.json` (bản v1 không bị ảnh hưởng):
+- `eyebrow` (dòng chữ vàng trên tên), `lead` (câu sáng dần theo từng chữ), `points` (4 ý: tiêu đề + nội dung), `work_lede` (câu giới thiệu Selected Work), `contact_text` (câu dưới Let’s talk).
+- `projects`: mô tả từng dự án theo slug (`title`, `role`, `when`, `text`, `extra` là đoạn thứ hai; bỏ trống `extra` thì không hiện đoạn đó). Thêm dự án mới trong `portfolio.src.html` mà không có mục ở đây thì v2 dùng chữ của v1.
+- `jobs`: toàn bộ phần Where I've worked, cùng thứ tự với JOBS trong `portfolio.src.html` (thời gian, chức danh, công ty, tóm tắt, danh sách Responsibilities).
+- `about` (3 thẻ đầu của About: tiêu đề + nội dung) và `education`.
 
 - Layout, màu và hiệu ứng riêng của v2 nằm trong `v2.src.html`. Không sửa `v2/index.html` bằng tay.
-- Tiêu đề ngắn của 4 ý trong Professional Summary: thuộc tính `data-titles` trong `v2.src.html`.
-- Câu giới thiệu dưới tên ở đầu trang v2 (`<p class="x-intro">`) viết riêng trong `v2.src.html`; bản v1 vẫn dùng phần số liệu của mình.
+- Câu giới thiệu dưới tên ở đầu trang (`<p class="x-intro">`), chữ trên 2 nút và tiêu đề Let’s talk viết thẳng trong `v2.src.html`. Các từ được tô vàng trong câu sáng dần nằm ở dòng `structured|creative|workflows` trong `v2.src.html`.
 - Đầu trang: thiên hà xoắn ốc 3D theo màu thương hiệu trong một không gian trừu tượng: lõi có tia sáng hình sao, vệt sáng toả ra, lưới chấm sáng cong, tinh vân xoáy và đốm màu (three.js r128 từ cdnjs, đoạn `hero: a spiral galaxy` trong `v2.src.html`; tham khảo video Daft Punk "Contact" 0:59–1:16). Không có hành tinh. Khi cuộn, camera bay vào lõi. Máy không hỗ trợ WebGL sẽ thấy khối màu CSS thay thế.
 - Thư viện hiệu ứng: GSAP 3.12.5 + ScrollTrigger và three.js r128 (cdnjs), Lenis 1.1.13 (jsDelivr). Nếu không tải được, trang vẫn hiện đủ nội dung, chỉ không có hiệu ứng.
 

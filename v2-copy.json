@@ -1,0 +1,92 @@
+{
+  "_about": "Copy used only by version 2 (v2/index.html). build.py puts these texts in place of the v1 ones from portfolio.src.html; images, videos, decks, links and counts still come from portfolio.src.html. Projects are matched by slug, jobs by position (same order as JOBS). The hero intro, buttons and the Let's talk heading are written directly in v2.src.html.",
+  "eyebrow": "Creative Direction & Design",
+  "lead": "I build structured creative workflows that actually ship—balancing clear KPIs, smart resource allocation, and consistent brand quality in fast-moving corporate environments.",
+  "points": [
+    ["Hands-on leadership", "I don’t manage purely from the sidelines. When timelines get tight or bandwidth runs low, I jump straight into the work to clear bottlenecks and keep quality high without burning out the team."],
+    ["Visual storytelling with a business lens", "Good design has a job to do. I translate marketing briefs into cohesive visual systems that stay true to brand strategy across digital, print, and live touchpoints."],
+    ["UI design in Figma", "Beyond brand and campaign work, I design web and app interfaces in Figma—building clean layouts, reusable components, and digital products that feel unmistakably on-brand."],
+    ["AI-native workflow", "AI is part of my everyday toolkit, from concepting and image generation to video editing and production automation. I work across Claude, ChatGPT, and Gemini depending on the task, constantly testing new tools to help my team move faster without compromising craft."]
+  ],
+  "work_lede": "A closer look at the brands, campaigns, and systems I’ve helped shape. Open any project to see the role, the context, and the full gallery.",
+  "projects": {
+    "dai-ichi-life-vietnam": {
+      "role": "Senior Design Officer", "when": "2022 – Present",
+      "text": "I lead visual execution aligned with business and marketing goals—shaping key visuals, directing suppliers, and keeping every touchpoint consistent across internal and external channels.",
+      "extra": "A major highlight has been rolling out the rebrand from Dai-ichi Life Vietnam to Daiichi Life Việt Nam, translating the new identity across the customer portal (kh.daiichilife.com.vn), national campaigns, social content, and explainer videos so the entire brand speaks as one system."
+    },
+    "sunrise-events-vietnam": {
+      "role": "Creative Manager", "when": "2019 – 2022",
+      "text": "Led brand identity and event visuals for Vietnam’s flagship endurance races, including IRONMAN Vietnam, the Techcombank Ho Chi Minh City International Marathon, Sunrise Sprint, and LANDMARK 81 Race to the Summit. Managed everything from key visuals and race-day signage to on-site photo/video direction, vendor coordination, and client pitches."
+    },
+    "cen-group-rising-star-media": {
+      "title": "CEN Group (Rising Star Media)", "role": "Creative Manager", "when": "2018 – 2019",
+      "text": "Led the design team at Rising Star Media, building new brand identities and campaign key visuals for client projects. Directed suppliers and collaborated closely with digital, event, merchandise, and marketing teams from initial concept to client presentation."
+    },
+    "laguna-lang-co": {
+      "role": "Creative Manager", "when": "2018",
+      "text": "Managed the resort’s digital asset library and led the in-house graphic team under Banyan Tree Hotels & Resorts brand guidelines. Oversaw concepts, timelines, budgets, and junior designer mentoring while unifying Laguna Lăng Cô’s brand identity into a single cohesive system.",
+      "extra": ""
+    },
+    "nam-long-group": {
+      "role": "Creative Leader", "when": "2016 – 2018",
+      "text": "Served as corporate design lead for Nam Long Investment Corporation—creating project brand identities, campaign key visuals, and corporate event design. Directed external vendors and guided projects from initial concept through final delivery."
+    },
+    "thien-minh-hospitality-thien-minh-group": {
+      "role": "Senior Designer", "when": "2013 – 2016",
+      "text": "Led design execution across hospitality, aviation, and travel brands, taking work from early sketches and storyboards to final production. Managed designers across Victoria Hotels & Resorts (eight resorts, cruises, coach, and express train), EMM Hotel & Resorts, L'Azalee Cruise, Lady Hau Cruise, iVivu, and Hai Au Aviation."
+    },
+    "freelancer": {
+      "role": "Ongoing, alongside full-time roles", "when": "",
+      "text": "Selected independent projects across medical, F&B, real estate, and service brands—covering brand identity systems, pitch decks, and website UI design."
+    }
+  },
+  "jobs": [
+    ["2022 – Present", "Senior Design Officer", "Dai-ichi Life Vietnam", "Brand consistency, rebrand rollout, and multimedia campaign visuals tied to business strategy.", [
+      "Translate marketing initiatives and brand positioning into campaign key visuals and multimedia assets.",
+      "Rolled out the Daiichi Life Việt Nam rebrand across digital touchpoints, including the customer portal (kh.daiichilife.com.vn), social campaigns, and instructional videos.",
+      "Direct external vendors and agencies to maintain brand standards and production quality.",
+      "Partner with internal and external stakeholders to align execution plans and present creative concepts."]],
+    ["2019 – 2022", "Creative Manager", "Sunrise Events Vietnam", "End-to-end event branding and race-day visual direction for Vietnam’s largest endurance sports events.", [
+      "Built and refreshed brand identities for IRONMAN Vietnam, Techcombank HCMC International Marathon, Sunrise Sprint, and LANDMARK 81 “Race to the Summit.”",
+      "Directed race-day photography and videography teams to capture high-impact event coverage.",
+      "Designed comprehensive on-site event visuals, wayfinding, and digital assets (including the HCMC Marathon landing page UI in Figma).",
+      "Managed production vendors and pitched creative directions directly to sponsors and clients."]],
+    ["2018 – 2019", "Creative Manager", "CEN Group, Rising Star Media", "Design leadership across client branding, digital campaigns, events, and merchandise.", [
+      "Created new brand identities and campaign key visuals tailored to client marketing strategies.",
+      "Led cross-channel design execution spanning digital platforms, event production, merchandise, and marketing collateral.",
+      "Managed external suppliers and presented finished creative concepts to clients and leadership."]],
+    ["2018", "Creative Manager", "Laguna Lăng Cô, Banyan Tree Group", "Led the resort’s graphic design team and digital asset library under Banyan Tree brand standards.", [
+      "Managed Laguna Lăng Cô’s central digital library (photography, video, web, and PR assets) and unified the resort’s visual identity.",
+      "Led, mentored, and delegated workloads across the in-house graphic design team to hit deadlines and budgets.",
+      "Directed layouts, print collateral, brochures, and campaign visuals strictly aligned with Banyan Tree Hotels & Resorts Corporate Identity Guidelines.",
+      "Acted as primary creative contact across resort departments, translating business briefs into targeted hospitality campaigns."]],
+    ["2016 – 2018", "Creative Leader", "Nam Long Investment Corporation", "Corporate design lead covering real estate project branding and company-wide events.", [
+      "Developed new brand identities and key visuals for Nam Long’s real estate projects.",
+      "Led visual design and production support for corporate and investor events.",
+      "Directed external agencies and printers, owning quality from concept through final delivery."]],
+    ["2013 – 2016", "Senior Designer", "Thien Minh Hospitality (Thien Minh Group)", "Team lead for a multi-brand hospitality, cruise, aviation, and OTA portfolio.", [
+      "Led a team of designers across Victoria Hotels & Resorts (8 resorts, cruises, coach, and express train), EMM Hotel & Resorts, L'Azalee Cruise, Lady Hau Cruise, iVivu, and Hai Au Aviation.",
+      "Produced sketches, storyboards, and visual concepts, guiding projects from rough ideas to final print and digital rollout.",
+      "Coordinated across marketing and operations teams to keep multi-channel brand assets cohesive."]],
+    ["2012 – 2013", "Senior Designer", "Innovo Joint-Stock Company", "Print and digital marketing collateral for agency clients and the Citypass Guide.", [
+      "Designed print and digital marketing campaigns for agency clients and the Citypass Guide publication.",
+      "Collaborated with account teams and clients to adapt creative concepts across multiple media channels."]],
+    ["2010 – 2012", "Advertising Planning Specialist", "Sun Flower Media", "Editorial design for leading lifestyle magazines and brand launch support for Tiep Thi Food.", [
+      "Designed editorial layouts and advertising visuals for Tiếp Thị Gia Đình, Cosmopolitan, and Her World.",
+      "Supported advertising campaign planning—aligning audience targeting, tone, and messaging while managing production timelines.",
+      "Contributed to the core launch team for Tiep Thi Food, a gourmet retail concept."]]
+  ],
+  "about": [
+    ["How I work", "Open, energetic, and grounded in logic. Clear structure and disciplined time management are how I keep complex, multi-stakeholder projects moving smoothly."],
+    ["Leadership style", "High-trust and outcome-driven. I work comfortably with minimal supervision and focus on guiding multidisciplinary teams—across design, photo, video, events, and digital—toward clear goals."],
+    ["Mindset & AI", "Curious by nature and quick to adopt new tools. I treat AI as a practical amplifier in a modern creative workflow, while keeping brand taste, judgement, and the final call firmly with the designer."]
+  ],
+  "education": [
+    ["Diploma in Graphic Design", "FPT Arena Multimedia, Ho Chi Minh City · 2009–2010"],
+    ["Integrated Marketing Communication", "Vietnam Marcom Education Academy · 2015"],
+    ["Business English", "ELITE International English School · 2010"],
+    ["Diploma in Electrical Engineering", "Hanoi University of Science and Technology · 2006–2009"]
+  ],
+  "contact_text": "Open to senior design and creative leadership roles, as well as select brand projects."
+}

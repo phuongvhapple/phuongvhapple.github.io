@@ -5,9 +5,9 @@
   section titles, numbered project cards, a sideways About track).
 
   This file holds only the v2 layout, styles and motion. `python3 build.py` fills every
-  @NAME marker below from portfolio.src.html (content, project data, the project view with
-  gallery, videos and flip books, and all v1 styles) and writes v2/index.html.
-  Update content in portfolio.src.html: both versions pick it up on the next build.
+  @NAME marker below and writes v2/index.html: the wording from v2-copy.json (v2 has its own
+  copy), and from portfolio.src.html the project data, the project view with gallery,
+  videos and flip books, the name, numbers, skills, contact rows and all v1 styles.
 -->
 <style>
 /*@V1_CSS*/
@@ -222,6 +222,7 @@
     .x-job .x-plus { grid-column: 2; width: 46px; height: 46px; }
     .x-cue { display: none; }
     .x-intro { font-size: 17px; }
+    .x-eyebrow { font-size: 14px; letter-spacing: .3em; white-space: nowrap; }
     .x-panel { padding: 28px 24px; }
   }
   /* phones: the same picture with less work for the graphics chip. The background lights drop
@@ -267,9 +268,9 @@
         <p class="x-eyebrow sub">/*@EYEBROW*/</p>
         <h1>/*@NAME*/</h1>
         <!-- v2 only: the friendly line under the name (v1 keeps its own facts) -->
-        <p class="x-intro">Hi, I'm a Design Manager in Ho Chi Minh City. For <b>10+ years</b> I've turned brand ideas into clear, memorable visuals, and I lead creative teams of <b>up to 10 people</b> across design, photo, video, events and digital.</p>
+        <p class="x-intro">I’m a Design Manager based in Ho Chi Minh City with <b>over 10 years</b> of experience turning brand strategy into clear, memorable visuals. I lead multidisciplinary teams of <b>up to 10 people</b> across graphic design, photography, video, events, and digital.</p>
         <div class="x-cta">
-          <a class="btn primary" href="#work">Discover my work</a>
+          <a class="btn primary" href="#work">Explore my work</a>
           <a class="btn" href="#contact">Get in touch</a>
         </div>
       </div>
@@ -286,8 +287,8 @@
   </section>
 
   <section class="x-in x-pts" aria-label="How I work">
-    <!-- short titles for the summary paragraphs after the first, in order -->
-    <ol class="x-points" data-titles="Hands-on|Storytelling as a business tool|UI design in Figma|AI in my workflow"><!--@POINTS--></ol>
+    <!-- titles and texts of the points come from v2-copy.json -->
+    <ol class="x-points"><!--@POINTS--></ol>
     <div class="x-stats"><!--@STATS--></div>
   </section>
 
@@ -328,7 +329,7 @@
 
   <section class="x-in x-contact" id="contact">
     <p class="x-label sub">Contact</p>
-    <h2 class="x-huge">Let's <em>talk</em></h2>
+    <h2 class="x-huge">Let’s <em>talk</em></h2>
     <p><!--@CONTACT_TEXT--></p>
     <div class="rows"><!--@CONTACT_ROWS--></div>
     <footer><span>© 2026 Vũ Hoàng Phương</span><span>Ho Chi Minh City</span></footer>
@@ -343,6 +344,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /*@V1_DATA*/
+/*@V2_COPY*/
 /*@V1_PROJECT_VIEW*/
 
   /* ===== hero: a spiral galaxy in the brand colours, in an abstract space =====
@@ -840,7 +842,7 @@
     /* statement lights up word by word */
     var big = document.getElementById("x-big");
     var ws = big.textContent.trim().split(/\s+/);
-    big.innerHTML = ws.map(function (w) { return '<span class="xw' + (/^(Design|Manager|10)$/.test(w) ? " k" : "") + '">' + w + "</span>"; }).join(" ");
+    big.innerHTML = ws.map(function (w) { return '<span class="xw' + (/^(structured|creative|workflows)$/.test(w) ? " k" : "") + '">' + w + "</span>"; }).join(" ");
     G.to(big.querySelectorAll(".xw"), { opacity: 1, ease: "none", stagger: .1, scrollTrigger: { trigger: ".x-state", start: "top top", end: "bottom bottom", scrub: .6 } });
 
     /* points and numbers */

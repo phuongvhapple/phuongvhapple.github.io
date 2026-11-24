@@ -193,24 +193,26 @@ def plural(n, one, many):
 
 def v2(src, d, manifest, ld, faces, manifest_raw):
     """Version 2 (v2/index.html): the layout, styles and motion of v2.src.html filled with
-    the content, project data, project view and styles of portfolio.src.html, so both
-    versions always carry the same content."""
+    the project data, project view and styles of portfolio.src.html. Its wording comes from
+    v2-copy.json (summary, points, project texts, jobs, About, education, contact line);
+    media, links and counts still come from portfolio.src.html."""
     page = (ROOT / "v2.src.html").read_text()
-    paras = [text(p) for p in re.findall(r"<p[^>]*>(.*?)</p>", section(src, '<div class="summary">', "</div>"), re.S)]
-    facts = re.findall(r"<dt[^>]*>(.*?)</dt><dd>(.*?)<small>(.*?)</small></dd>", section(src, '<aside class="facts"', "</aside>"))
+    copy = json.loads((ROOT / "v2-copy.json").read_text())
+    d = json.loads(json.dumps(d))
+    for p in d["projects"]:
+        p.update(copy["projects"].get(p["slug"], {}))
+    d["jobs"] = copy["jobs"]
+    facts =re.findall(r"<dt[^>]*>(.*?)</dt><dd>(.*?)<small>(.*?)</small></dd>", section(src, '<aside class="facts"', "</aside>"))
     facts_note = text(re.search(r"<p>(.*?)</p>", section(src, '<aside class="facts"', "</aside>"), re.S).group(1))
-    about = section(src, '<section id="about">', "</section>")
-    traits = re.findall(r"<p>(.*?)</p>", section(about, "Characteristics", "<ul"), re.S)
     contact = section(src, '<section id="contact">', "</section>")
     copies = re.findall(r'data-copy="([^"]+)"', contact)
-    titles = re.search(r'data-titles="([^"]*)"', page).group(1).split("|")
 
     def cover(p):
         return manifest.get(p["slug"], [None])[0]
 
     points = "".join(
-        f'<li><span class="x-num">{k + 1:02d}.</span><h3>{esc(titles[k]) if k < len(titles) else ""}</h3><p>{esc(t)}</p></li>'
-        for k, t in enumerate(paras[1:]))
+        f'<li><span class="x-num">{k + 1:02d}.</span><h3>{esc(h)}</h3><p>{esc(t)}</p></li>'
+        for k, (h, t) in enumerate(copy["points"]))
     stats = "".join(
         f'<dl class="x-stat"><dt class="sub">{esc(text(dt))}</dt><dd>{re.sub(r"(\d+)", r"<span class=\"n\">\1</span>", esc(text(dd)), count=1)}</dd>'
         f'<small>{esc(text(sm))}</small></dl>' for dt, dd, sm in facts) + f'<p class="x-now">{esc(facts_note)}</p>'
@@ -238,27 +240,34 @@ def v2(src, d, manifest, ld, faces, manifest_raw):
         f'</ul></div></div></div><button class="x-plus" type="button" aria-expanded="false" aria-controls="xjd-{n}" aria-label="Show responsibilities"></button></article>'
         for n, j in enumerate(d["jobs"]))
     panels = "".join(
-        f'<article class="x-panel glass"><span class="x-num">{k + 1:02d}.</span><h3>Characteristics</h3><p class="x-quote">{t.strip()}</p></article>'
-        for k, t in enumerate(traits))
-    panels += f'<article class="x-panel glass"><span class="x-num">{len(traits) + 1:02d}.</span><h3>Skills</h3>{section(src, "<ul class=\"skills\"", "</ul>")}</ul></article>'
-    panels += f'<article class="x-panel glass wide"><span class="x-num">{len(traits) + 2:02d}.</span><h3>Education</h3>{section(src, "<ul class=\"edu\"", "</ul>")}</ul></article>'
+        f'<article class="x-panel glass"><span class="x-num">{k + 1:02d}.</span><h3>{esc(h)}</h3><p class="x-quote">{esc(t)}</p></article>'
+        for k, (h, t) in enumerate(copy["about"]))
+    na = len(copy["about"])
+    panels += f'<article class="x-panel glass"><span class="x-num">{na + 1:02d}.</span><h3>Skills</h3>{section(src, "<ul class=\"skills\"", "</ul>")}</ul></article>'
+    panels += (f'<article class="x-panel glass wide"><span class="x-num">{na + 2:02d}.</span><h3>Education</h3><ul class="edu">'
+               + "".join(f"<li><strong>{esc(a)}</strong><span>{esc(b)}</span></li>" for a, b in copy["education"]) + "</ul></article>")
     total = sum(len(manifest.get(p["slug"], [])) for p in d["projects"])
     v1_css = section(src, "<style>", "</style>")[len("<style>"):]
     fill = {
         "/*@V1_CSS*/": v1_css,
         "/*@EMAIL*/": copies[0], "/*@PHONE*/": copies[1],
-        "/*@EYEBROW*/": text(re.search(r'<p class="eyebrow[^>]*>(.*?)</p>', src).group(1)),
+        "/*@EYEBROW*/": esc(copy["eyebrow"]),
         "/*@NAME*/": re.sub(r' style="[^"]*"', "", re.search(r"<h1>(.*?)</h1>", src, re.S).group(1)),
-        "<!--@LEAD-->": esc(paras[0]), "<!--@POINTS-->": points, "<!--@STATS-->": stats,
+        "<!--@LEAD-->": esc(copy["lead"]), "<!--@POINTS-->": points, "<!--@STATS-->": stats,
         "<!--@WORK_NOTE-->": f"{len(d['projects'])} projects · {total} images",
-        "<!--@WORK_LEDE-->": text(re.search(r'<p class="work-lede">(.*?)</p>', src, re.S).group(1)),
+        "<!--@WORK_LEDE-->": esc(copy["work_lede"]),
         "<!--@CARDS-->": cards + "\n" + work_notes(d),
         "<!--@EXP_NOTE-->": text(re.search(r'id="experience">.*?<p class="sec-note[^>]*>(.*?)</p>', src, re.S).group(1)),
         "<!--@JOBS-->": jobs, "<!--@ABOUT_PANELS-->": panels,
-        "<!--@CONTACT_TEXT-->": text(re.search(r"<h2>.*?</h2>\s*<p>(.*?)</p>", contact, re.S).group(1)),
+        "<!--@CONTACT_TEXT-->": esc(copy["contact_text"]),
         "<!--@CONTACT_ROWS-->": section(contact, '<div class="row">', "\n      </div>\n    </div>").strip(),
         "<!--@OVERLAY-->": section(src, '<div class="scrim"', "<script>").strip(),
         "/*@V1_DATA*/": section(src, "  var PROJECTS = [", "  /* the build writes the cards"),
+        # the project view reads PROJECTS at run time, so it gets the v2 wording too
+        "/*@V2_COPY*/": "  /* v2 wording (from v2-copy.json) over the v1 project texts and jobs */\n"
+                        f"  var V2_COPY = {json.dumps({'projects': copy['projects'], 'jobs': copy['jobs']}, ensure_ascii=False)};\n"
+                        "  PROJECTS.forEach(function (p) { var o = V2_COPY.projects[p.slug]; if (o) for (var k in o) p[k] = o[k]; });\n"
+                        "  JOBS = V2_COPY.jobs;\n",
         "/*@V1_PROJECT_VIEW*/": section(src, "  /* Project view", "  /* Motion:"),
     }
     for k, v in fill.items():
