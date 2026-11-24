@@ -442,7 +442,10 @@
   [data-lenis-prevent] { overscroll-behavior: contain; }
   html { scroll-behavior: auto; }
   body.v2 { padding: 0; margin: 0; }
-  .v2 section { padding: 0; scroll-margin-top: 0; }
+  /* reset v1's section padding, except on sections that are also .x-in: those keep the
+     same side margins as the rest of the page and their own top and bottom spacing */
+  .v2 section { scroll-margin-top: 0; }
+  .v2 section:not(.x-in) { padding: 0; }
   .x-in { position: relative; z-index: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
   .x-label { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 15px; color: var(--ink-faint); letter-spacing: .32em; }
   .x-label::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 14px rgba(253,196,0,.8); }
@@ -603,13 +606,11 @@
   .x-panel .edu { margin-top: auto; }
 
   /* contact */
-  .x-contact { padding-block: 120px 56px; display: grid; gap: 30px; }
+  .x-contact { padding-block: 120px calc(env(safe-area-inset-bottom, 0px) + 72px); display: grid; gap: 30px; }
   .x-huge { font-size: clamp(64px, 15vw, 220px); line-height: .92; letter-spacing: -.04em; text-transform: uppercase; }
   .x-contact > p { margin: 0; max-width: 46ch; color: var(--ink-dim); font-size: 20px; }
   .x-contact .rows { max-width: 760px; }
   .x-contact .row code { font-size: clamp(18px, 2.2vw, 26px); font-family: var(--headline); }
-  .x-v1 { color: var(--ink-faint); text-decoration: none; }
-  .x-v1:hover { color: var(--ink); }
 
   @media (max-width: 1000px) {
     .x-points { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -763,7 +764,7 @@
     <p>Open to senior design and creative leadership roles, and to selected brand projects.</p>
     <div class="rows"><div class="row"><div><small>Email</small><code>phuongvh.apple@gmail.com</code></div><button type="button" data-copy="phuongvh.apple@gmail.com">Copy</button></div>
         <div class="row"><div><small>Phone</small><code>0986 362 186</code></div><button type="button" data-copy="0986 362 186">Copy</button></div></div>
-    <footer><span>© 2026 Vũ Hoàng Phương</span><a class="x-v1" href="../">Classic version</a><span>Ho Chi Minh City</span></footer>
+    <footer><span>© 2026 Vũ Hoàng Phương</span><span>Ho Chi Minh City</span></footer>
   </section>
 </main>
 
