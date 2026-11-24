@@ -149,7 +149,7 @@ def llms(src, d, manifest):
     """The whole CV and portfolio as Markdown (llmstxt.org)."""
     summary = re.findall(r"<p[^>]*>(.*?)</p>", section(src, '<div class="summary">', "</div>"), re.S)
     about = section(src, '<section id="about">', "</section>")
-    traits = re.findall(r"<p>(.*?)</p>", section(about, "Characteristics", "<ul"), re.S)
+    traits = re.findall(r"<p>(.*?)</p>", section(about, "Working style", "<ul"), re.S)
     skills = re.findall(r"<li>([^<]+)</li>", section(src, '<ul class="skills"', "</ul>"))
     edu = re.findall(r"<strong>([^<]+)</strong><span>([^<]+)</span>", section(src, '<ul class="edu"', "</ul>"))
     facts = text(section(src, '<aside class="facts"', "</aside>"))

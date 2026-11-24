@@ -79,7 +79,7 @@ Rồi thêm vào mục `decks:` của dự án: `["<id>", "Tên brand", "Loại 
 ## Nội dung chữ
 
 Trong `portfolio.src.html`: phần đầu trang và Professional Summary (`class="hero"`), mô tả dự án (`var PROJECTS`),
-kinh nghiệm (`var JOBS`), About, Characteristics, Education, Contact.
+kinh nghiệm (`var JOBS`), About, Working style, Education, Contact.
 Màu ở `:root` (đầu file), font ở `--headline`, `--sub`, `--body`; font Google ở `GOOGLE_FONTS` trong `build.py`.
 
 ## Phiên bản 2 (https://phuongvhapple.github.io/v2/)
